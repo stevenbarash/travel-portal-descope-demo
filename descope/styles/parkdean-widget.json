@@ -1,0 +1,196 @@
+{
+  "styleId": "parkdean-widget",
+  "globals": {
+    "colors": {
+      "primary": {
+        "main": "#0B2A4A",
+        "dark": "#061A2F",
+        "light": "#2D5478",
+        "highlight": "#E9F0F6",
+        "contrast": "#FFFFFF"
+      },
+      "secondary": {
+        "main": "#00788A",
+        "dark": "#005866",
+        "light": "#00A7B5",
+        "highlight": "#E3F5F7",
+        "contrast": "#FFFFFF"
+      },
+      "surface": {
+        "main": "#FFFFFF",
+        "dark": "#52657A",
+        "light": "#D3DDE7",
+        "highlight": "#F3F7FA",
+        "contrast": "#0B2A4A"
+      },
+      "error": {
+        "main": "#C8331F",
+        "dark": "#9E2414",
+        "light": "#F2A79B",
+        "highlight": "#FDF0EE",
+        "contrast": "#FFFFFF"
+      },
+      "success": {
+        "main": "#1F7A4D",
+        "dark": "#155A38",
+        "light": "#8CCBA8",
+        "highlight": "#EEF8F2",
+        "contrast": "#FFFFFF"
+      }
+    },
+    "fonts": {
+      "font1": {
+        "label": "Nunito Sans",
+        "family": [
+          "Nunito Sans",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
+        "url": "https://fonts.googleapis.com/css?family=Nunito+Sans:400,600,700,800"
+      },
+      "font2": {
+        "label": "Nunito Sans",
+        "family": [
+          "Nunito Sans",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
+        "url": "https://fonts.googleapis.com/css?family=Nunito+Sans:400,600,700,800"
+      }
+    },
+    "typography": {
+      "h1": {
+        "font": "var(--descope-fonts-font1-family)",
+        "size": "32px",
+        "weight": "800"
+      },
+      "h2": {
+        "font": "var(--descope-fonts-font1-family)",
+        "size": "26px",
+        "weight": "800"
+      },
+      "h3": {
+        "font": "var(--descope-fonts-font1-family)",
+        "size": "20px",
+        "weight": "700"
+      },
+      "subtitle1": {
+        "font": "var(--descope-fonts-font1-family)",
+        "size": "17px",
+        "weight": "600"
+      },
+      "subtitle2": {
+        "font": "var(--descope-fonts-font1-family)",
+        "size": "15px",
+        "weight": "400"
+      },
+      "body1": {
+        "font": "var(--descope-fonts-font1-family)",
+        "size": "15px",
+        "weight": "400"
+      },
+      "body2": {
+        "font": "var(--descope-fonts-font1-family)",
+        "size": "13px",
+        "weight": "400"
+      }
+    },
+    "radius": {
+      "xs": "8px",
+      "sm": "12px",
+      "md": "16px",
+      "lg": "20px",
+      "xl": "24px",
+      "2xl": "28px",
+      "3xl": "999px"
+    }
+  },
+  "components": {
+    "container": {
+      "--descope-container-background-color": "transparent",
+      "--descope-container-border-radius": "0",
+      "--descope-container-border-width": "0",
+      "--descope-container-box-shadow": "none"
+    },
+    "text": {
+      "--descope-text-text-line-height": "1.45em",
+      "variant": {
+        "h2": {
+          "--descope-text-text-line-height": "1.2em"
+        }
+      }
+    },
+    "button": {
+      "--descope-button-font-weight": "700",
+      "--descope-button-border-radius": "var(--descope-radius-3xl)",
+      "--descope-button-host-height": "3.25em",
+      "--descope-button-horizontal-padding": "1.25em",
+      "--descope-button-outline-offset": "2px",
+      "variant": {
+        "outline": {
+          "--descope-button-border-color": "var(--descope-colors-surface-light)",
+          "--descope-button-label-text-color": "var(--descope-colors-primary-main)"
+        },
+        "link": {
+          "--descope-button-label-text-color": "var(--descope-colors-secondary-main)"
+        }
+      },
+      "mode": {
+        "primary": {
+          "--descope-button-main": "#0B2A4A",
+          "--descope-button-dark": "#061A2F",
+          "--descope-button-light": "#2D5478",
+          "--descope-button-highlight": "#E9F0F6",
+          "--descope-button-contrast": "#FFFFFF"
+        },
+        "secondary": {
+          "--descope-button-main": "#00788A",
+          "--descope-button-dark": "#005866",
+          "--descope-button-light": "#00A7B5",
+          "--descope-button-highlight": "#E3F5F7",
+          "--descope-button-contrast": "#FFFFFF"
+        }
+      }
+    },
+    "inputWrapper": {
+      "--descope-input-wrapper-border-radius": "var(--descope-radius-sm)",
+      "--descope-input-wrapper-border-color": "var(--descope-colors-surface-light)",
+      "--descope-input-wrapper-input-height": "3.25em",
+      "--descope-input-wrapper-horizontal-padding": "0.875em",
+      "--descope-input-wrapper-label-font-weight": "700",
+      "--descope-input-wrapper-label-text-color": "var(--descope-colors-surface-contrast)",
+      "--descope-input-wrapper-placeholder-text-color": "#8A99A8",
+      "--descope-input-wrapper-outline-color": "var(--descope-colors-secondary-light)"
+    },
+    "divider": {
+      "--descope-divider-thickness": "1px",
+      "--descope-divider-spacing": "8px",
+      "--descope-divider-stripe-color": "var(--descope-colors-surface-light)",
+      "--descope-divider-stripe-color-opacity": "1"
+    },
+    "loaderLinear": {
+      "mode": {
+        "primary": {
+          "--descope-loader-linear-bar-color": "#00A7B5"
+        }
+      }
+    },
+    "loaderRadial": {
+      "mode": {
+        "primary": {
+          "--descope-loader-radial-spinner-color": "#0B2A4A"
+        }
+      }
+    }
+  }
+}

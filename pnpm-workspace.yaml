@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+linkWorkspacePackages: true
+allowBuilds:
+  esbuild: true
+# pnpm 12 refuses releases younger than this (minutes). renovate.json waits the same day.
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  # First-party SDKs: always the latest Descope release, even one published today.
+  - "@descope/*"

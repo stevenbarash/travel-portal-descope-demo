@@ -1,0 +1,21 @@
+{
+  "flowId": "pd-email-verify",
+  "languages": {
+    "fr": {
+      "code.h1.text": "Consultez vos e-mails",
+      "code.p1.text": "Nous avons envoyé un code à 6 chiffres à {{sentTo.maskedEmail}}",
+      "code.code.one-time-code.data-errormessage-value-missing": "Veuillez remplir ce champ.",
+      "code.code.one-time-code.data-errormessage-pattern-mismatch": "Le code doit comporter 6 chiffres",
+      "code.resend.button": "Recevoir un nouveau code",
+      "code.use-link.button": "Recevoir plutôt un lien de connexion par e-mail",
+
+      "link.h1.text": "Consultez votre boîte de réception",
+      "link.p1.text": "Nous avons envoyé un lien de connexion à {{sentTo.maskedEmail}}. Ouvrez-le sur n'importe quel appareil pour continuer.",
+      "link.resend.button": "Renvoyer le lien",
+      "link.use-code.button": "Utiliser un code à la place",
+
+      "done.h1.text": "Vous êtes connecté",
+      "done.p1.text": "Vous pouvez fermer cet onglet et reprendre là où vous en étiez."
+    }
+  }
+}

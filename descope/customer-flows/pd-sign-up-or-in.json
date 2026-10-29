@@ -1,0 +1,1842 @@
+{
+  "flow": {
+    "id": "pd-sign-up-or-in",
+    "name": "PD - Sign up or in",
+    "description": "Parkdean main journey. Personalised + A/B tested welcome, identifier-first: passkey if the user has one and the device supports it, else password, else email code/link. Booking data passed as form.* pre-fills.",
+    "dsl": {
+      "startTask": "0",
+      "tasks": {
+        "0": {
+          "conditions": [
+            {
+              "atomicConditions": [
+                {
+                  "operator": "is-true",
+                  "predicate": {
+                    "type": "inline",
+                    "value": ""
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "form.applePay"
+                  }
+                }
+              ],
+              "interactionId": "applepay",
+              "name": "Yes"
+            },
+            {
+              "interactionId": "ELSE",
+              "name": "Otherwise"
+            }
+          ],
+          "id": "0",
+          "name": "Apple Pay customer?",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "applepay",
+                "taskId": "2"
+              },
+              {
+                "interactionId": "ELSE",
+                "taskId": "1"
+              }
+            ]
+          },
+          "type": "condition",
+          "view": {
+            "x": 0,
+            "y": 300
+          }
+        },
+        "1": {
+          "conditions": [
+            {
+              "atomicConditions": [
+                {
+                  "operator": "less-than",
+                  "predicate": {
+                    "type": "inline",
+                    "value": 50
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "abTestingKey"
+                  }
+                }
+              ],
+              "interactionId": "a",
+              "name": "Variant A (50%)"
+            },
+            {
+              "interactionId": "ELSE",
+              "name": "Variant B"
+            }
+          ],
+          "id": "1",
+          "name": "A/B test: welcome variant",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "a",
+                "taskId": "3"
+              },
+              {
+                "interactionId": "ELSE",
+                "taskId": "2"
+              }
+            ]
+          },
+          "type": "condition",
+          "view": {
+            "x": 300,
+            "y": 500
+          }
+        },
+        "2": {
+          "allInputKeys": ["email"],
+          "calculatedInputKeys": true,
+          "id": "2",
+          "inputKeys": ["email"],
+          "name": "Welcome B - Apple first",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "continue",
+                "taskId": "5"
+              },
+              {
+                "interactionId": "apple",
+                "taskId": "4"
+              },
+              {
+                "interactionId": "google",
+                "taskId": "4"
+              }
+            ]
+          },
+          "screenId": "welcome-b",
+          "type": "screen",
+          "view": {
+            "x": 600,
+            "y": 200
+          }
+        },
+        "3": {
+          "allInputKeys": ["email"],
+          "calculatedInputKeys": true,
+          "id": "3",
+          "inputKeys": ["email"],
+          "name": "Welcome A - Email first",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "continue",
+                "taskId": "5"
+              },
+              {
+                "interactionId": "apple",
+                "taskId": "4"
+              },
+              {
+                "interactionId": "google",
+                "taskId": "4"
+              }
+            ]
+          },
+          "screenId": "welcome-a",
+          "type": "screen",
+          "view": {
+            "x": 600,
+            "y": 600
+          }
+        },
+        "4": {
+          "action": "oauth-start",
+          "arguments": {
+            "exchangeStepId": {
+              "type": "inline",
+              "value": "4.end"
+            }
+          },
+          "id": "4",
+          "name": "Apple / Google",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "4.end"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 1300,
+            "y": 750
+          }
+        },
+        "5": {
+          "conditions": [
+            {
+              "atomicConditions": [
+                {
+                  "operator": "is-true",
+                  "predicate": {
+                    "type": "inline",
+                    "value": ""
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "unauthUser.webauthn"
+                  }
+                },
+                {
+                  "operator": "is-true",
+                  "predicate": {
+                    "type": "inline",
+                    "value": ""
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "device.webAuthnSupport"
+                  }
+                }
+              ],
+              "interactionId": "passkey",
+              "name": "Has passkey + device supports it"
+            },
+            {
+              "atomicConditions": [
+                {
+                  "operator": "is-true",
+                  "predicate": {
+                    "type": "inline",
+                    "value": ""
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "unauthUser.password"
+                  }
+                }
+              ],
+              "interactionId": "password",
+              "name": "Has password"
+            },
+            {
+              "interactionId": "ELSE",
+              "name": "Email code / link"
+            }
+          ],
+          "id": "5",
+          "name": "How can this customer sign in?",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "passkey",
+                "taskId": "7"
+              },
+              {
+                "interactionId": "password",
+                "taskId": "8"
+              },
+              {
+                "interactionId": "ELSE",
+                "taskId": "6"
+              }
+            ]
+          },
+          "type": "condition",
+          "view": {
+            "x": 950,
+            "y": 300
+          }
+        },
+        "6": {
+          "arguments": {
+            "flowId": {
+              "type": "inline",
+              "value": "pd-email-verify"
+            }
+          },
+          "id": "6",
+          "name": "Email verification (subflow)",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "99.success",
+                "taskId": "9"
+              }
+            ]
+          },
+          "type": "flow",
+          "view": {
+            "x": 1300,
+            "y": 500
+          }
+        },
+        "7": {
+          "action": "webauthn-sign-in-start-v2",
+          "arguments": {
+            "finishStepId": {
+              "type": "inline",
+              "value": "7.end"
+            }
+          },
+          "id": "7",
+          "name": "Sign in with passkey",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "7.end"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 1300,
+            "y": 0
+          }
+        },
+        "8": {
+          "allInputKeys": ["password"],
+          "calculatedInputKeys": true,
+          "id": "8",
+          "inputKeys": ["password"],
+          "name": "Enter password",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "signin",
+                "taskId": "10"
+              },
+              {
+                "interactionId": "use-code",
+                "taskId": "6"
+              }
+            ]
+          },
+          "screenId": "password",
+          "type": "screen",
+          "view": {
+            "x": 1300,
+            "y": 250
+          }
+        },
+        "9": {
+          "arguments": {
+            "flowId": {
+              "type": "inline",
+              "value": "pd-profile"
+            }
+          },
+          "id": "9",
+          "name": "Progressive profile (subflow)",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "99.success",
+                "taskId": "11"
+              }
+            ]
+          },
+          "type": "flow",
+          "view": {
+            "x": 1950,
+            "y": 400
+          }
+        },
+        "10": {
+          "action": "password-sign-in-v2",
+          "id": "10",
+          "name": "Sign in with password",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "9"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 1600,
+            "y": 250
+          }
+        },
+        "11": {
+          "conditions": [
+            {
+              "atomicConditions": [
+                {
+                  "operator": "is-false",
+                  "predicate": {
+                    "type": "inline",
+                    "value": ""
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "user.webauthn"
+                  }
+                },
+                {
+                  "operator": "is-false",
+                  "predicate": {
+                    "type": "inline",
+                    "value": ""
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "user.password"
+                  }
+                }
+              ],
+              "interactionId": "none",
+              "name": "Yes"
+            },
+            {
+              "interactionId": "ELSE",
+              "name": "Otherwise"
+            }
+          ],
+          "id": "11",
+          "name": "No passkey or password yet?",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "none",
+                "taskId": "13"
+              },
+              {
+                "interactionId": "ELSE",
+                "taskId": "14"
+              }
+            ]
+          },
+          "type": "condition",
+          "view": {
+            "x": 2250,
+            "y": 400
+          }
+        },
+        "12": {
+          "action": "logged-in",
+          "id": "12",
+          "name": "End",
+          "next": {},
+          "type": "automated",
+          "view": {
+            "x": 3800,
+            "y": 300
+          }
+        },
+        "13": {
+          "conditions": [
+            {
+              "atomicConditions": [
+                {
+                  "operator": "is-true",
+                  "predicate": {
+                    "type": "inline",
+                    "value": ""
+                  },
+                  "target": {
+                    "type": "context",
+                    "value": "device.webAuthnSupport"
+                  }
+                }
+              ],
+              "interactionId": "yes",
+              "name": "Yes"
+            },
+            {
+              "interactionId": "ELSE",
+              "name": "No"
+            }
+          ],
+          "id": "13",
+          "name": "Device supports passkeys?",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "yes",
+                "taskId": "15"
+              },
+              {
+                "interactionId": "ELSE",
+                "taskId": "16"
+              }
+            ]
+          },
+          "type": "condition",
+          "view": {
+            "x": 2550,
+            "y": 250
+          }
+        },
+        "14": {
+          "arguments": {
+            "flowId": {
+              "type": "inline",
+              "value": "pd-mfa"
+            }
+          },
+          "id": "14",
+          "name": "Authenticator app MFA (subflow)",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "99.success",
+                "taskId": "12"
+              }
+            ]
+          },
+          "type": "flow",
+          "view": {
+            "x": 3450,
+            "y": 600
+          }
+        },
+        "15": {
+          "id": "15",
+          "name": "Offer passkey",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "create",
+                "taskId": "17"
+              },
+              {
+                "interactionId": "skip",
+                "taskId": "14"
+              }
+            ]
+          },
+          "screenId": "offer-passkey",
+          "type": "screen",
+          "view": {
+            "x": 2850,
+            "y": 100
+          }
+        },
+        "16": {
+          "allInputKeys": ["newPassword"],
+          "calculatedInputKeys": true,
+          "contextKeys": ["pswdPolicy"],
+          "id": "16",
+          "inputKeys": ["newPassword"],
+          "name": "Offer password",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "save",
+                "taskId": "18"
+              },
+              {
+                "interactionId": "skip",
+                "taskId": "14"
+              }
+            ]
+          },
+          "screenId": "set-password",
+          "type": "screen",
+          "view": {
+            "x": 2850,
+            "y": 400
+          }
+        },
+        "17": {
+          "action": "webauthn-update-user-start",
+          "arguments": {
+            "finishStepId": {
+              "type": "inline",
+              "value": "17.end"
+            }
+          },
+          "id": "17",
+          "name": "Create passkey",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "17.end"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 3150,
+            "y": 0
+          }
+        },
+        "18": {
+          "action": "password-update",
+          "id": "18",
+          "name": "Save password",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "14"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 3150,
+            "y": 400
+          }
+        },
+        "17.end": {
+          "action": "webauthn-update-user-finish",
+          "id": "17.end",
+          "name": "Create passkey",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "12"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 3450,
+            "y": 0
+          }
+        },
+        "4.end": {
+          "action": "exchange-oauth-code",
+          "id": "4.end",
+          "name": "Apple / Google",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "9"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 1600,
+            "y": 750
+          }
+        },
+        "7.end": {
+          "action": "webauthn-sign-in-finish",
+          "id": "7.end",
+          "name": "Sign in with passkey",
+          "next": {
+            "rules": [
+              {
+                "interactionId": "success",
+                "taskId": "12"
+              }
+            ]
+          },
+          "type": "automated",
+          "view": {
+            "x": 1600,
+            "y": 0
+          }
+        },
+        "start": {
+          "id": "start",
+          "name": "start",
+          "next": {
+            "rules": [
+              {
+                "taskId": "0"
+              }
+            ]
+          },
+          "view": {
+            "x": -300,
+            "y": 300
+          }
+        }
+      }
+    },
+    "disabled": false
+  },
+  "screens": [
+    {
+      "id": "offer-passkey",
+      "flowId": "pd-sign-up-or-in",
+      "inputs": [],
+      "interactions": [
+        {
+          "id": "create",
+          "type": "",
+          "label": "Create a passkey",
+          "icon": "passkey",
+          "subType": ""
+        },
+        {
+          "id": "skip",
+          "type": "",
+          "label": "Not now",
+          "icon": "",
+          "subType": ""
+        }
+      ],
+      "htmlTemplate": {
+        "ROOT": {
+          "custom": {},
+          "displayName": "Container",
+          "hidden": false,
+          "isCanvas": true,
+          "linkedNodes": {},
+          "nodes": ["h1", "p1", "create", "skip", "err"],
+          "props": {
+            "align": "center",
+            "background": "",
+            "data-editor-type": "container",
+            "direction": "column",
+            "id": "ROOT",
+            "justify": "center",
+            "paddingX": "4",
+            "paddingY": "8",
+            "spaceBetween": "4",
+            "st-items-grow": 0,
+            "width": "100%"
+          },
+          "type": {
+            "resolvedName": "Container"
+          }
+        },
+        "create": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Biometrics Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Create a passkey",
+            "color": "primary",
+            "data-type": "biometrics",
+            "formNoValidate": false,
+            "full-width": true,
+            "id": "create",
+            "mode": "primary",
+            "size": "md",
+            "st-icon-color": "currentColor",
+            "st-label-spacing": "10px",
+            "startIcon": "passkey",
+            "startIconColorText": true,
+            "variant": "contained"
+          },
+          "type": {
+            "resolvedName": "BiometricsButton"
+          }
+        },
+        "err": {
+          "custom": {},
+          "displayName": "Error Message",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "data-type": "error-message",
+            "full-width": false,
+            "hide-when-empty": true,
+            "id": "err",
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "error",
+            "text-align": "center",
+            "variant": "body1"
+          },
+          "type": {
+            "resolvedName": "ErrorMessage"
+          }
+        },
+        "h1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "children": "Sign in faster next time",
+            "full-width": false,
+            "id": "h1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "h2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        },
+        "p1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Use Face ID, Touch ID or your device PIN instead of a password or code.",
+            "full-width": false,
+            "id": "p1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "subtitle2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        },
+        "skip": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Not now",
+            "color": "primary",
+            "data-type": "button",
+            "formNoValidate": true,
+            "full-width": true,
+            "id": "skip",
+            "shape": "",
+            "size": "md",
+            "variant": "outline"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        }
+      },
+      "componentsVersion": "3.26.0"
+    },
+    {
+      "id": "password",
+      "flowId": "pd-sign-up-or-in",
+      "inputs": [],
+      "interactions": [
+        {
+          "id": "signin",
+          "type": "",
+          "label": "Sign in",
+          "icon": "",
+          "subType": ""
+        },
+        {
+          "id": "use-code",
+          "type": "",
+          "label": "Forgot it? Email me a code instead",
+          "icon": "",
+          "subType": ""
+        }
+      ],
+      "htmlTemplate": {
+        "ROOT": {
+          "custom": {},
+          "displayName": "Container",
+          "hidden": false,
+          "isCanvas": true,
+          "linkedNodes": {},
+          "nodes": ["h1", "p1", "pw", "signin", "err", "use-code"],
+          "props": {
+            "align": "center",
+            "background": "",
+            "data-editor-type": "container",
+            "direction": "column",
+            "id": "ROOT",
+            "justify": "center",
+            "paddingX": "4",
+            "paddingY": "8",
+            "spaceBetween": "4",
+            "st-items-grow": 0,
+            "width": "100%"
+          },
+          "type": {
+            "resolvedName": "Container"
+          }
+        },
+        "err": {
+          "custom": {},
+          "displayName": "Error Message",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "data-type": "error-message",
+            "full-width": false,
+            "hide-when-empty": true,
+            "id": "err",
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "error",
+            "text-align": "center",
+            "variant": "body1"
+          },
+          "type": {
+            "resolvedName": "ErrorMessage"
+          }
+        },
+        "h1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "children": "Welcome back",
+            "full-width": false,
+            "id": "h1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "h2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        },
+        "p1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Enter your password",
+            "full-width": false,
+            "id": "p1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "subtitle2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        },
+        "pw": {
+          "custom": {},
+          "displayName": "Login Password",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "autocomplete": "current-password",
+            "bordered": true,
+            "full-width": true,
+            "id": "pw",
+            "label": "Password",
+            "label-type": "static",
+            "name": "password",
+            "placeholder": "Password",
+            "size": "md",
+            "type": "password"
+          },
+          "type": {
+            "resolvedName": "Password"
+          }
+        },
+        "signin": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Sign in",
+            "color": "primary",
+            "data-type": "button",
+            "formNoValidate": false,
+            "full-width": true,
+            "id": "signin",
+            "shape": "",
+            "size": "md",
+            "variant": "contained"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        },
+        "use-code": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "auto-submit": false,
+            "children": "Forgot it? Email me a code instead",
+            "color": "primary",
+            "data-type": "button",
+            "formNoValidate": true,
+            "full-width": false,
+            "id": "use-code",
+            "shape": "",
+            "size": "md",
+            "variant": "link"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        }
+      },
+      "componentsVersion": "3.26.0"
+    },
+    {
+      "id": "set-password",
+      "flowId": "pd-sign-up-or-in",
+      "inputs": [],
+      "interactions": [
+        {
+          "id": "save",
+          "type": "",
+          "label": "Save password",
+          "icon": "",
+          "subType": ""
+        },
+        {
+          "id": "skip",
+          "type": "",
+          "label": "Skip for now",
+          "icon": "",
+          "subType": ""
+        }
+      ],
+      "htmlTemplate": {
+        "ROOT": {
+          "custom": {},
+          "displayName": "Container",
+          "hidden": false,
+          "isCanvas": true,
+          "linkedNodes": {},
+          "nodes": ["sp-h1", "sp-p1", "np", "save", "skip", "err"],
+          "props": {
+            "align": "center",
+            "background": "",
+            "data-editor-type": "container",
+            "direction": "column",
+            "id": "ROOT",
+            "justify": "center",
+            "paddingX": "4",
+            "paddingY": "8",
+            "spaceBetween": "4",
+            "st-items-grow": 0,
+            "width": "100%"
+          },
+          "type": {
+            "resolvedName": "Container"
+          }
+        },
+        "err": {
+          "custom": {},
+          "displayName": "Error Message",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "data-type": "error-message",
+            "full-width": false,
+            "hide-when-empty": true,
+            "id": "err",
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "error",
+            "text-align": "center",
+            "variant": "body1"
+          },
+          "type": {
+            "resolvedName": "ErrorMessage"
+          }
+        },
+        "np": {
+          "custom": {
+            "type": "input"
+          },
+          "displayName": "New Password",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "active-policies": [],
+            "autocomplete": "new-password",
+            "bordered": true,
+            "confirm-label": "Confirm password",
+            "confirm-placeholder": "Confirm password",
+            "data-password-policy-message-anyletter": "1 letter (any case)",
+            "data-password-policy-message-disallowedchars": "Does not contain: {{value}}",
+            "data-password-policy-message-disallowemail": "Does not match your email",
+            "data-password-policy-message-lowercase": "1 lowercase letter",
+            "data-password-policy-message-minlength": "Minimum {{value}} characters",
+            "data-password-policy-message-nonalphanumeric": "1 symbol",
+            "data-password-policy-message-number": "1 number",
+            "data-password-policy-message-uppercase": "1 uppercase letter",
+            "external-input": false,
+            "full-width": true,
+            "has-confirm": true,
+            "has-validation": true,
+            "id": "np",
+            "label-type": "static",
+            "name": "newPassword",
+            "password-label": "Password",
+            "password-placeholder": "Password",
+            "policy-label": "Your password must have at least:",
+            "required": true,
+            "size": "md",
+            "st-policy-preview-padding": "0"
+          },
+          "type": {
+            "resolvedName": "NewPassword"
+          }
+        },
+        "save": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Save password",
+            "color": "primary",
+            "data-type": "button",
+            "formNoValidate": false,
+            "full-width": true,
+            "id": "save",
+            "shape": "",
+            "size": "md",
+            "variant": "contained"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        },
+        "skip": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Skip for now",
+            "color": "primary",
+            "data-type": "button",
+            "formNoValidate": true,
+            "full-width": true,
+            "id": "skip",
+            "shape": "",
+            "size": "md",
+            "variant": "outline"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        },
+        "sp-h1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "children": "Create a password",
+            "full-width": false,
+            "id": "sp-h1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "h2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        },
+        "sp-p1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Optional: set a password for devices that don't support passkeys.",
+            "full-width": false,
+            "id": "sp-p1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "subtitle2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        }
+      },
+      "componentsVersion": "3.26.0"
+    },
+    {
+      "id": "welcome-a",
+      "flowId": "pd-sign-up-or-in",
+      "inputs": [],
+      "interactions": [
+        {
+          "id": "continue",
+          "type": "",
+          "label": "Continue",
+          "icon": "",
+          "subType": ""
+        },
+        {
+          "id": "google",
+          "type": "button",
+          "label": "Continue with Google",
+          "icon": "google",
+          "subType": "social"
+        },
+        {
+          "id": "apple",
+          "type": "button",
+          "label": "Continue with Apple",
+          "icon": "apple",
+          "subType": "social"
+        }
+      ],
+      "htmlTemplate": {
+        "ROOT": {
+          "custom": {},
+          "displayName": "Container",
+          "hidden": false,
+          "isCanvas": true,
+          "linkedNodes": {},
+          "nodes": [
+            "h1",
+            "p1",
+            "email",
+            "hp",
+            "continue",
+            "or",
+            "google",
+            "apple",
+            "err"
+          ],
+          "props": {
+            "align": "center",
+            "background": "",
+            "data-editor-type": "container",
+            "direction": "column",
+            "id": "ROOT",
+            "justify": "center",
+            "paddingX": "4",
+            "paddingY": "8",
+            "spaceBetween": "4",
+            "st-items-grow": 0,
+            "width": "100%"
+          },
+          "type": {
+            "resolvedName": "Container"
+          }
+        },
+        "apple": {
+          "custom": {
+            "subType": "social",
+            "type": "button"
+          },
+          "displayName": "Apple Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "aria-label": "Sign in with Apple",
+            "children": "Continue with Apple",
+            "color": "primary",
+            "data-descope-provider": "apple",
+            "data-type": "social",
+            "formNoValidate": true,
+            "full-width": true,
+            "id": "apple",
+            "shape": "",
+            "size": "md",
+            "st-label-spacing": "10px",
+            "startIcon": "apple",
+            "startIconColorText": false,
+            "variant": "outline"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        },
+        "continue": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Continue",
+            "color": "primary",
+            "data-type": "button",
+            "formNoValidate": false,
+            "full-width": true,
+            "id": "continue",
+            "shape": "",
+            "size": "md",
+            "variant": "contained"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        },
+        "email": {
+          "custom": {
+            "type": "input"
+          },
+          "displayName": "Email Input",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "bordered": true,
+            "copy-to-clipboard": false,
+            "external-input": false,
+            "full-width": true,
+            "id": "email",
+            "label": "Email",
+            "label-type": "static",
+            "max": 100,
+            "name": "email",
+            "pattern": "^[\\w\\.\\%\\+\\-']+@[\\w\\.\\-]+\\.[A-Za-z]{2,}$",
+            "placeholder": "Email",
+            "required": true,
+            "size": "md",
+            "type": "email"
+          },
+          "type": {
+            "resolvedName": "EmailInput"
+          }
+        },
+        "err": {
+          "custom": {},
+          "displayName": "Error Message",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "data-type": "error-message",
+            "full-width": false,
+            "hide-when-empty": true,
+            "id": "err",
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "error",
+            "text-align": "center",
+            "variant": "body1"
+          },
+          "type": {
+            "resolvedName": "ErrorMessage"
+          }
+        },
+        "google": {
+          "custom": {
+            "subType": "social",
+            "type": "button"
+          },
+          "displayName": "Google Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "aria-label": "Sign in with Google",
+            "children": "Continue with Google",
+            "color": "primary",
+            "data-descope-provider": "google",
+            "data-type": "social",
+            "formNoValidate": true,
+            "full-width": true,
+            "id": "google",
+            "shape": "",
+            "size": "md",
+            "st-label-spacing": "10px",
+            "startIcon": "google",
+            "startIconColorText": false,
+            "variant": "outline"
+          },
+          "type": {
+            "resolvedName": "GoogleButton"
+          }
+        },
+        "h1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "children": "Sign in or create an account",
+            "full-width": false,
+            "id": "h1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "h2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        },
+        "hp": {
+          "custom": {},
+          "displayName": "Bot trap",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "aria-hidden": "true",
+            "autoComplete": "off",
+            "data-1p-ignore": "true",
+            "data-bwignore": "true",
+            "data-form-type": "other",
+            "data-lpignore": "true",
+            "data-protonpass-ignore": "true",
+            "id": "hp",
+            "name": "dhp-ponyhot",
+            "placeholder": "Your email",
+            "tabIndex": -1,
+            "type": "text"
+          },
+          "type": {
+            "resolvedName": "Honeypot"
+          }
+        },
+        "or": {
+          "custom": {},
+          "displayName": "Divider",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "or",
+            "id": "or",
+            "italic": false,
+            "mode": "primary",
+            "variant": "body1",
+            "vertical": false
+          },
+          "type": {
+            "resolvedName": "Divider"
+          }
+        },
+        "p1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Manage your Parkdean Resorts breaks in one place.",
+            "full-width": false,
+            "id": "p1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "subtitle2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        }
+      },
+      "componentsVersion": "3.26.0"
+    },
+    {
+      "id": "welcome-b",
+      "flowId": "pd-sign-up-or-in",
+      "inputs": [],
+      "interactions": [
+        {
+          "id": "apple",
+          "type": "button",
+          "label": "Continue with Apple",
+          "icon": "apple",
+          "subType": "social"
+        },
+        {
+          "id": "google",
+          "type": "button",
+          "label": "Continue with Google",
+          "icon": "google",
+          "subType": "social"
+        },
+        {
+          "id": "continue",
+          "type": "",
+          "label": "Continue with email",
+          "icon": "",
+          "subType": ""
+        }
+      ],
+      "htmlTemplate": {
+        "ROOT": {
+          "custom": {},
+          "displayName": "Container",
+          "hidden": false,
+          "isCanvas": true,
+          "linkedNodes": {},
+          "nodes": [
+            "h1",
+            "p1",
+            "apple",
+            "google",
+            "or",
+            "email",
+            "hp",
+            "continue",
+            "err"
+          ],
+          "props": {
+            "align": "center",
+            "background": "",
+            "data-editor-type": "container",
+            "direction": "column",
+            "id": "ROOT",
+            "justify": "center",
+            "paddingX": "4",
+            "paddingY": "8",
+            "spaceBetween": "4",
+            "st-items-grow": 0,
+            "width": "100%"
+          },
+          "type": {
+            "resolvedName": "Container"
+          }
+        },
+        "apple": {
+          "custom": {
+            "subType": "social",
+            "type": "button"
+          },
+          "displayName": "Apple Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "aria-label": "Sign in with Apple",
+            "children": "Continue with Apple",
+            "color": "primary",
+            "data-descope-provider": "apple",
+            "data-type": "social",
+            "formNoValidate": true,
+            "full-width": true,
+            "id": "apple",
+            "shape": "",
+            "size": "md",
+            "st-label-spacing": "10px",
+            "startIcon": "apple",
+            "startIconColorText": false,
+            "variant": "outline"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        },
+        "continue": {
+          "custom": {
+            "type": "button"
+          },
+          "displayName": "Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Continue with email",
+            "color": "primary",
+            "data-type": "button",
+            "formNoValidate": false,
+            "full-width": true,
+            "id": "continue",
+            "shape": "",
+            "size": "md",
+            "variant": "contained"
+          },
+          "type": {
+            "resolvedName": "Button"
+          }
+        },
+        "email": {
+          "custom": {
+            "type": "input"
+          },
+          "displayName": "Email Input",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "bordered": true,
+            "copy-to-clipboard": false,
+            "external-input": false,
+            "full-width": true,
+            "id": "email",
+            "label": "Email",
+            "label-type": "static",
+            "max": 100,
+            "name": "email",
+            "pattern": "^[\\w\\.\\%\\+\\-']+@[\\w\\.\\-]+\\.[A-Za-z]{2,}$",
+            "placeholder": "Email",
+            "required": true,
+            "size": "md",
+            "type": "email"
+          },
+          "type": {
+            "resolvedName": "EmailInput"
+          }
+        },
+        "err": {
+          "custom": {},
+          "displayName": "Error Message",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "data-type": "error-message",
+            "full-width": false,
+            "hide-when-empty": true,
+            "id": "err",
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "error",
+            "text-align": "center",
+            "variant": "body1"
+          },
+          "type": {
+            "resolvedName": "ErrorMessage"
+          }
+        },
+        "google": {
+          "custom": {
+            "subType": "social",
+            "type": "button"
+          },
+          "displayName": "Google Button",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "aria-label": "Sign in with Google",
+            "children": "Continue with Google",
+            "color": "primary",
+            "data-descope-provider": "google",
+            "data-type": "social",
+            "formNoValidate": true,
+            "full-width": true,
+            "id": "google",
+            "shape": "",
+            "size": "md",
+            "st-label-spacing": "10px",
+            "startIcon": "google",
+            "startIconColorText": false,
+            "variant": "outline"
+          },
+          "type": {
+            "resolvedName": "GoogleButton"
+          }
+        },
+        "h1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "align": "center",
+            "children": "Welcome to Parkdean Resorts",
+            "full-width": false,
+            "id": "h1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "h2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        },
+        "hp": {
+          "custom": {},
+          "displayName": "Bot trap",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "aria-hidden": "true",
+            "autoComplete": "off",
+            "data-1p-ignore": "true",
+            "data-bwignore": "true",
+            "data-form-type": "other",
+            "data-lpignore": "true",
+            "data-protonpass-ignore": "true",
+            "id": "hp",
+            "name": "dhp-ponyhot",
+            "placeholder": "Your email",
+            "tabIndex": -1,
+            "type": "text"
+          },
+          "type": {
+            "resolvedName": "Honeypot"
+          }
+        },
+        "or": {
+          "custom": {},
+          "displayName": "Divider",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "or",
+            "id": "or",
+            "italic": false,
+            "mode": "primary",
+            "variant": "body1",
+            "vertical": false
+          },
+          "type": {
+            "resolvedName": "Divider"
+          }
+        },
+        "p1": {
+          "custom": {},
+          "displayName": "Text",
+          "hidden": false,
+          "isCanvas": false,
+          "linkedNodes": {},
+          "nodes": [],
+          "parent": "ROOT",
+          "props": {
+            "children": "Sign in or create an account in seconds.",
+            "full-width": false,
+            "id": "p1",
+            "isEnriched": true,
+            "italic": false,
+            "link-target-blank": true,
+            "mode": "primary",
+            "text-align": "center",
+            "variant": "subtitle2"
+          },
+          "type": {
+            "resolvedName": "Text"
+          }
+        }
+      },
+      "componentsVersion": "3.26.0"
+    }
+  ]
+}

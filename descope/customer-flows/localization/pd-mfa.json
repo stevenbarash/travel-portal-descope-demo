@@ -1,0 +1,17 @@
+{
+  "flowId": "pd-mfa",
+  "languages": {
+    "fr": {
+      "ffer.h1.text": "Renforcer la sécurité ?",
+      "ffer.p1.text": "Utilisez n'importe quelle application d'authentification (Google Authenticator, Microsoft Authenticator, 1Password...) pour une seconde étape à la connexion. Facultatif.",
+      "ffer.setup.button": "Configurer une application d'authentification",
+      "ffer.skip.button": "Pas maintenant",
+
+      "etup.h1.text": "Scannez ce QR code",
+      "etup.p1.text": "Scannez-le avec votre application d'authentification, puis saisissez le code à 6 chiffres affiché.",
+
+      "rify.h1.text": "Saisissez votre code de sécurité",
+      "rify.p1.text": "Ouvrez votre application d'authentification et saisissez le code à 6 chiffres pour Parkdean Resorts."
+    }
+  }
+}

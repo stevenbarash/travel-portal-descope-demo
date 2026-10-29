@@ -1,0 +1,13 @@
+{
+  "flowId": "pd-profile",
+  "languages": {
+    "fr": {
+      "name.h1.text": "Vous y êtes presque",
+      "name.h1.text.data-errormessage-value-missing": "Veuillez remplir ce champ.",
+      "name.p1.text": "Comment devons-nous vous appeler ?",
+      "name.fn.full-name-input.placeholder": "Nom complet",
+      "name.fn.full-name-input.data-errormessage-value-missing": "Veuillez remplir ce champ.",
+      "name.save.button": "Continuer"
+    }
+  }
+}

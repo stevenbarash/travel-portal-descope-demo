@@ -1,0 +1,56 @@
+{
+  "flowId": "pd-sign-up-or-in",
+  "languages": {
+    "fr": {
+      "me-a.h1.text": "Connectez-vous ou créez un compte",
+      "me-a.p1.text": "Gérez tous vos séjours Parkdean Resorts au même endroit.",
+      "me-a.email.email-input.label": "E-mail",
+      "me-a.email.email-input.placeholder": "E-mail",
+      "me-a.hp.bot-trap.placeholder": "Votre e-mail",
+      "me-a.continue.button": "Continuer",
+      "me-a.or.divider": "ou",
+      "me-a.google.google-button": "Continuer avec Google",
+      "me-a.apple.apple-button": "Continuer avec Apple",
+
+      "me-b.h1.text": "Bienvenue chez Parkdean Resorts",
+      "me-b.p1.text": "Connectez-vous ou créez un compte en quelques secondes.",
+      "me-b.apple.apple-button": "Continuer avec Apple",
+      "me-b.google.google-button": "Continuer avec Google",
+      "me-b.or.divider": "ou",
+      "me-b.email.email-input.label": "E-mail",
+      "me-b.email.email-input.placeholder": "E-mail",
+      "me-b.hp.bot-trap.placeholder": "Votre e-mail",
+      "me-b.continue.button": "Continuer avec l'e-mail",
+
+      "word.h1.text": "Bon retour parmi nous",
+      "word.p1.text": "Saisissez votre mot de passe",
+      "word.pw.login-password.label": "Mot de passe",
+      "word.pw.login-password.placeholder": "Mot de passe",
+      "word.signin.button": "Se connecter",
+      "word.use-code.button": "Mot de passe oublié ? Recevoir un code par e-mail",
+
+      "word.sp-h1.text": "Créez un mot de passe",
+      "word.sp-p1.text": "Facultatif : définissez un mot de passe pour les appareils qui ne prennent pas en charge les clés d'accès.",
+      "word.np.new-password.password-label": "Mot de passe",
+      "word.np.new-password.password-placeholder": "Mot de passe",
+      "word.np.new-password.confirm-label": "Confirmez le mot de passe",
+      "word.np.new-password.confirm-placeholder": "Confirmez le mot de passe",
+      "word.np.new-password.policy-label": "Votre mot de passe doit contenir au moins :",
+      "word.np.new-password.data-password-policy-message-minlength": "{{value}} caractères minimum",
+      "word.np.new-password.data-password-policy-message-lowercase": "1 lettre minuscule",
+      "word.np.new-password.data-password-policy-message-uppercase": "1 lettre majuscule",
+      "word.np.new-password.data-password-policy-message-anyletter": "1 lettre (majuscule ou minuscule)",
+      "word.np.new-password.data-password-policy-message-number": "1 chiffre",
+      "word.np.new-password.data-password-policy-message-nonalphanumeric": "1 symbole",
+      "word.np.new-password.data-password-policy-message-disallowedchars": "Ne contient pas : {{value}}",
+      "word.np.new-password.data-password-policy-message-disallowemail": "Différent de votre e-mail",
+      "word.save.button": "Enregistrer le mot de passe",
+      "word.skip.button": "Plus tard",
+
+      "skey.h1.text": "Connectez-vous plus vite la prochaine fois",
+      "skey.p1.text": "Utilisez Face ID, Touch ID ou le code PIN de votre appareil au lieu d'un mot de passe ou d'un code.",
+      "skey.create.biometrics-button": "Créer une clé d'accès",
+      "skey.skip.button": "Pas maintenant"
+    }
+  }
+}

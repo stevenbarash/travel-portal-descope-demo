@@ -1,0 +1,26 @@
+@import "./brand/tokens.css";
+@import "tailwindcss";
+
+/*
+ * Semantic utilities → brand tokens. Components use ONLY these names
+ * (bg-background, text-foreground, text-muted, border-border, bg-primary, text-primary-foreground,
+ * text-accent, text-danger, bg-surface, bg-logo-plate). Values come from packages/brand/brand.ts via tokens.css.
+ */
+@theme inline {
+  --color-background: var(--brand-background);
+  --color-foreground: var(--brand-foreground);
+  --color-muted: var(--brand-muted);
+  --color-border: var(--brand-border);
+  --color-primary: var(--brand-primary);
+  --color-primary-foreground: var(--brand-primary-foreground);
+  --color-accent: var(--brand-accent);
+  --color-danger: var(--brand-danger);
+  --color-surface: var(--brand-surface);
+  --color-logo-plate: var(--brand-logo-plate);
+  --font-sans: var(--brand-font);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}

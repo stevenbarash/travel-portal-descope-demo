@@ -1,0 +1,10 @@
+node_modules/
+.kit-state/
+dist/
+.env
+.env.*.local
+*.local
+playwright-report/
+test-results/
+.DS_Store
+package-lock.json

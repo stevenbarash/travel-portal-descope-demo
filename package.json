@@ -1,0 +1,51 @@
+{
+  "name": "parkdean-descope-demo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"npm run dev -w @kit/api\" \"npm run dev -w @kit/web\"",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present && npm run typecheck:scripts && npm run typecheck:e2e",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "npm run test --workspaces --if-present && npm run test:scripts",
+    "test:scripts": "node --import tsx --test scripts/lib/*.test.ts",
+    "check": "npm run typecheck && npm run lint && npm run brand:guard && npm run test",
+    "seed": "tsx scripts/seed.ts",
+    "otp": "tsx scripts/otp.ts",
+    "users": "tsx scripts/users.ts",
+    "reset": "tsx scripts/reset.ts",
+    "typecheck:scripts": "tsc -p scripts/tsconfig.json",
+    "e2e": "node --import tsx scripts/smoke.ts",
+    "check:full": "npm run check && npm run e2e",
+    "inspect": "tsx scripts/inspect.ts",
+    "typecheck:e2e": "tsc -p e2e/tsconfig.json",
+    "flows:export": "tsx scripts/flows-export.ts",
+    "brand:apply": "tsx scripts/brand-apply.ts",
+    "brand:guard": "tsx scripts/brand-apply.ts --check && tsx scripts/brand-guard.ts",
+    "bootstrap": "npm run seed && npm run e2e",
+    "doctor": "node --import tsx scripts/doctor.ts",
+    "seed:plan": "tsx scripts/seed.ts --plan",
+    "tunnel": "tsx scripts/tunnel.ts",
+    "style:import": "tsx scripts/style-import.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.14",
+    "@kit/descope": "*",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.0.0",
+    "concurrently": "^10.0.5",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "@kit/brand": "*"
+  }
+}
