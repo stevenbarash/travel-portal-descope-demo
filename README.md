@@ -1,20 +1,21 @@
-# TravelCorp × Descope — demo application
+# Travel portal × Descope — demo application
 
-A TravelCorp demo: one customer profile across many bookings, passwordless
-sign-in, sign-up straight from a booking, households with Descope Family Accounts, and secure tools
-for customer service. It's a reference implementation, not production code. Use it to see exactly
-how each piece calls Descope, then run it against your own Descope project.
+A generic travel portal demo, branded as the fictional "TravelCorp": one customer profile across
+many bookings, passwordless sign-in, sign-up straight from a booking, households with Descope Family
+Accounts, and secure tools for customer service. It's a reference implementation, not production
+code. Use it to see exactly how each piece calls Descope, then run it against your own Descope
+project.
 
 ## What's in it
 
-| Page                              | What it shows                                                                                                                                                                                                                                                                   | Your requirements                      |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| **Book a break** (`/book`)        | Book without an account. "Continue to book" embeds TravelCorp's sign-up-or-in flow on the page, with the email and name carried over from the form and Apple first for Apple Pay customers. After sign-in you land back on the same booking. "Who's coming?" lists your family. | 2, 3, +, 15, 20                        |
-| **Sign in** (`/login`)            | TravelCorp's flow: passkeys where the device supports them, Apple and Google, email code or link with a masked address and resend, password with your policy, optional authenticator app, a 50/50 A/B welcome variant, a honeypot bot trap. EN/FR switch in the header.         | 1, 2, 4, 5, 6, 7, 8, 9, 10, 14, 17, 18 |
-| **My bookings** (`/bookings`)     | Every booking on one profile, shared by the household.                                                                                                                                                                                                                          | one profile                            |
-| **My family** (`/family`)         | Descope Family Accounts: guardians who sign in as themselves, dependents (children, pets) with no login, adding and removing dependents, and "Act for" a dependent with the guardian named in the token.                                                                        | households                             |
-| **My account** (`/me`)            | Descope's User Profile widget for self-service (name, email, phone, passkeys, password, authenticator app), next to the validated session and its claims.                                                                                                                       | self-service                           |
-| **Customer service** (`/service`) | For the Customer Service role: find a customer, see their family, bookings and audit trail, and view the account as the customer, with the agent named in the token.                                                                                                            | 21                                     |
+| Page | What it shows |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Book a break** (`/book`) | Book without an account. "Continue to book" embeds the portal's sign-up-or-in flow on the page, with the email and name carried over from the form and Apple first for Apple Pay customers. After sign-in you land back on the same booking. "Who's coming?" lists your family. |
+| **Sign in** (`/login`) | The portal's sign-in flow: passkeys where the device supports them, Apple and Google, email code or link with a masked address and resend, password with your policy, optional authenticator app, a 50/50 A/B welcome variant, a honeypot bot trap. EN/FR switch in the header. |
+| **My bookings** (`/bookings`) | Every booking on one profile, shared by the household. |
+| **My family** (`/family`) | Descope Family Accounts: guardians who sign in as themselves, dependents (children, pets) with no login, adding and removing dependents, and "Act for" a dependent with the guardian named in the token. |
+| **My account** (`/me`) | Descope's User Profile widget for self-service (name, email, phone, passkeys, password, authenticator app), next to the validated session and its claims. |
+| **Customer service** (`/service`) | For the Customer Service role: find a customer, see their family, bookings and audit trail, and view the account as the customer, with the agent named in the token. |
 
 ## How it's built
 
@@ -26,8 +27,8 @@ how each piece calls Descope, then run it against your own Descope project.
 - `packages/descope/src/server.ts`: the only file that calls the Descope Node SDK. Start here to
   see every Descope call the API makes.
 - `packages/contracts`: the API's request and response shapes (zod), shared by both apps.
-- `packages/brand/brand.ts`: name, colours, font and logo.
-- `descope/customer-flows/`: TravelCorp's flows as JSON, with French translations in `localization/`.
+- `packages/brand/brand.ts`: the demo brand (name, colours, font and logo). Change it here.
+- `descope/customer-flows/`: the portal's sign-in flows as JSON, with French translations in `localization/`.
 - `descope/styles/`: the flow style (`travel-portal`) and a flat variant for widgets (`travel-portal-widget`).
 - `scripts/`: management-key scripts that create the demo users, roles and families, and remove
   them again.
@@ -36,7 +37,7 @@ how each piece calls Descope, then run it against your own Descope project.
 
 ## Run it against your Descope project
 
-You need Node 24 and pnpm (`corepack enable`), plus a Descope project and a management key
+You need Node 20.19+ (CI uses 24) and pnpm (`corepack enable`), plus a Descope project and a management key
 (console → Company → Management Keys).
 
 **1. In the Descope console**
