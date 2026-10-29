@@ -13,7 +13,7 @@ import {
  * booking under one profile.
  */
 
-test("signed out: booking details flow into Travel Portal's sign-in, then back to the same booking", async ({
+test("signed out: booking details flow into TravelCorp's sign-in, then back to the same booking", async ({
   page,
   context,
 }) => {

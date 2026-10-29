@@ -1,6 +1,6 @@
-# Travel Portal's flows (copy)
+# TravelCorp's flows (copy)
 
-Travel Portal's flows as JSON exports. Import them into your Descope project (console → Flows →
+TravelCorp's flows as JSON exports. Import them into your Descope project (console → Flows →
 Import flow, subflows first: `tp-email-verify`, `tp-profile`, `tp-mfa`, then `tp-sign-up-or-in`).
 They are **not managed by seed or reset**: seed only imports `demo-*` files from `descope/flows/`.
 `pnpm flows:export` refreshes these copies from the project.

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Travel Portal">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="TravelCorp">
   <rect width="64" height="64" rx="14" fill="#0b2a4a"/>
-  <text x="32" y="41" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="26" font-weight="800" fill="#00a7b5">TP</text>
+  <text x="32" y="44" text-anchor="middle" font-family="Nunito Sans, Arial, Helvetica, sans-serif" font-size="34" font-weight="800" fill="#00a7b5">T</text>
 </svg>

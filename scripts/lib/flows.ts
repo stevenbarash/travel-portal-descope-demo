@@ -87,7 +87,7 @@ export async function resetFlows(
 
 /**
  * The customer's own flows (not managed by seed/reset): a read-only copy kept in the repo so the
- * demo's login journey is reviewable and restorable. Travel Portal's flows are `tp-*`.
+ * demo's login journey is reviewable and restorable. TravelCorp's flows are `tp-*`.
  */
 export const CUSTOMER_FLOWS_DIR = resolve(
   import.meta.dirname,

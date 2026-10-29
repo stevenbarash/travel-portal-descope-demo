@@ -665,7 +665,7 @@
           "nodes": [],
           "parent": "ROOT",
           "props": {
-            "children": "Open your authenticator app and enter the 6-digit code for Travel Portal.",
+            "children": "Open your authenticator app and enter the 6-digit code for TravelCorp.",
             "full-width": false,
             "id": "p1",
             "isEnriched": true,

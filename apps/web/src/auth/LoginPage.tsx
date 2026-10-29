@@ -10,7 +10,7 @@ import { SdkLogin } from "./SdkLogin";
 import { useAuthMode } from "./useAuthMode";
 
 /**
- * Sign in to a Travel Portal account (B2C: no tenant; identity resolves at project level). Mid-booking
+ * Sign in to a TravelCorp account (B2C: no tenant; identity resolves at project level). Mid-booking
  * sign-in happens on /book itself; this page serves "Sign in" and protected-page redirects.
  */
 export function LoginPage() {

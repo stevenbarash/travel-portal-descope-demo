@@ -26,7 +26,7 @@ import {
 /**
  * "Book a break" — public, no login needed to browse (anonymous guests are free).
  *  1. The customer picks a break and enters their email and name, like any booking form.
- *  2. "Continue to book" opens Travel Portal's own sign-up-or-in flow right here, with the booking
+ *  2. "Continue to book" opens TravelCorp's own sign-up-or-in flow right here, with the booking
  *     details passed in as flow input: the email is pre-filled, the name is saved without asking
  *     again (req 3, +), and Apple Pay customers see Apple first (req 20).
  *  3. After sign-in they land back on this booking, at the confirm step (req 15). The draft is in
@@ -275,7 +275,7 @@ function DetailsStep({
   );
 }
 
-/** Travel Portal's own flow, embedded in the booking page, with the booking details as its input. */
+/** TravelCorp's own flow, embedded in the booking page, with the booking details as its input. */
 function SignInStep({
   draft,
   onBack,

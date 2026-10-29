@@ -263,7 +263,7 @@ The kit's own flows: `demo-sign-up-or-in` (web default; runs the `demo-promote-p
 `demo-step-up`, `demo-promote-passkeys` (subflow only, never a web flow ID), and the opt-ins
 `demo-sign-up-or-in-otp`, `demo-step-up-otp`, `demo-password-sms-mfa`, from `descope/flows/` and imported by `pnpm seed`. Use the project's own `sign-up-or-in`/`step-up` only when the demo
 should show the customer's flow. Any other ID must exist in the target project (`pnpm inspect`).
-This demo: Travel Portal's own `tp-sign-up-or-in` (subflows `tp-email-verify`, `tp-profile`, `tp-mfa`),
+This demo: TravelCorp's own `tp-sign-up-or-in` (subflows `tp-email-verify`, `tp-profile`, `tp-mfa`),
 already in the project; a copy lives in `descope/customer-flows/` and seed never imports it.
 
 ## Flow actions the kit's flows use (from Descope templates; verified with MCP `ValidateFlow`)

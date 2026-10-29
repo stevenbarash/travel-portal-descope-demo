@@ -7,7 +7,7 @@ import {
 
 /**
  * `pnpm flows:export`: write the project's current demo-* flows back into descope/flows, and a
- * copy of Travel Portal's own tp-* flows into descope/customer-flows (never imported by seed).
+ * copy of TravelCorp's own tp-* flows into descope/customer-flows (never imported by seed).
  */
 const { descope } = managementClient();
 await exportKitFlows(descope);

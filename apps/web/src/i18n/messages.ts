@@ -139,7 +139,7 @@ const en = {
     yourBreak: "Your break: ",
     changeLink: "change",
     signInIntro:
-      "Sign in or create your Travel Portal account to finish booking. We've brought your details across from the booking form.",
+      "Sign in or create your TravelCorp account to finish booking. We've brought your details across from the booking form.",
     welcome: (name?: string) =>
       `Welcome${name ? `, ${name}` : ""}. Here's the break you were booking.`,
     stay: "Stay",
@@ -167,10 +167,10 @@ const en = {
   family: {
     title: "My family",
     subtitle:
-      "Everyone you holiday with on one Travel Portal account. Grown-ups sign in with their own login; children and pets are on the account without one.",
+      "Everyone you holiday with on one TravelCorp account. Grown-ups sign in with their own login; children and pets are on the account without one.",
     none: "You're not in a family yet.",
     noneBody:
-      "Families are set up by Travel Portal customer service or in the Descope console.",
+      "Families are set up by TravelCorp customer service or in the Descope console.",
     guardian: "Guardian",
     dependent: "No login",
     you: "you",
@@ -411,7 +411,7 @@ const fr: Messages = {
     yourBreak: "Votre séjour : ",
     changeLink: "modifier",
     signInIntro:
-      "Connectez-vous ou créez votre compte Travel Portal pour finaliser la réservation. Nous avons repris les informations du formulaire.",
+      "Connectez-vous ou créez votre compte TravelCorp pour finaliser la réservation. Nous avons repris les informations du formulaire.",
     welcome: (name) =>
       `Bienvenue${name ? `, ${name}` : ""}. Voici le séjour que vous étiez en train de réserver.`,
     stay: "Hébergement",
@@ -440,10 +440,10 @@ const fr: Messages = {
   family: {
     title: "Ma famille",
     subtitle:
-      "Tous ceux avec qui vous partez en vacances, sur un seul compte Travel Portal. Les adultes se connectent avec leur propre identifiant ; les enfants et les animaux figurent sur le compte sans en avoir.",
+      "Tous ceux avec qui vous partez en vacances, sur un seul compte TravelCorp. Les adultes se connectent avec leur propre identifiant ; les enfants et les animaux figurent sur le compte sans en avoir.",
     none: "Vous ne faites pas encore partie d'une famille.",
     noneBody:
-      "Les familles sont créées par le service client Travel Portal ou dans la console Descope.",
+      "Les familles sont créées par le service client TravelCorp ou dans la console Descope.",
     guardian: "Responsable",
     dependent: "Sans identifiant",
     you: "vous",

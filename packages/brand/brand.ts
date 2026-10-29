@@ -57,7 +57,7 @@ export interface Brand {
 }
 
 export const brand: Brand = {
-  name: "Travel Portal",
+  name: "TravelCorp",
   tagline:
     "Hotels and apartments in destinations worldwide. Book your next trip.",
   logo: "/brand/logo.svg",

@@ -137,7 +137,7 @@ export async function completeEmailVerification(
 }
 
 /**
- * Travel Portal's welcome screen (tp-sign-up-or-in) comes in two A/B variants: "Continue" (email first)
+ * TravelCorp's welcome screen (tp-sign-up-or-in) comes in two A/B variants: "Continue" (email first)
  * or "Continue with email" (Apple first). Fill the email if it isn't pre-filled and continue.
  */
 export async function continueWithEmail(

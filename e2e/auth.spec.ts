@@ -28,7 +28,7 @@ async function expectWhoamiWithBearer(page: Page) {
   expect(body.userId).toMatch(/^U/);
 }
 
-test("flow mode: protected page redirects, Travel Portal's flow completes (email code), server validates", async ({
+test("flow mode: protected page redirects, TravelCorp's flow completes (email code), server validates", async ({
   page,
   context,
 }) => {
@@ -54,7 +54,7 @@ test("flow mode: protected page redirects, Travel Portal's flow completes (email
   await expectWhoamiWithBearer(page);
 });
 
-test("FR switch: the app and Travel Portal's flow render in French, EN switches back", async ({
+test("FR switch: the app and TravelCorp's flow render in French, EN switches back", async ({
   page,
   context,
 }) => {
@@ -63,7 +63,7 @@ test("FR switch: the app and Travel Portal's flow render in French, EN switches 
   );
   await page.goto("/login");
   const english = page
-    .getByText(/^(Sign in or create an account|Welcome to Travel Portal)$/)
+    .getByText(/^(Sign in or create an account|Welcome to TravelCorp)$/)
     .first();
   await expect(english).toBeVisible({ timeout: 30_000 });
 
@@ -71,7 +71,7 @@ test("FR switch: the app and Travel Portal's flow render in French, EN switches 
   await expect(
     page
       .getByText(
-        /^(Connectez-vous ou créez un compte|Bienvenue chez Travel Portal)$/,
+        /^(Connectez-vous ou créez un compte|Bienvenue chez TravelCorp)$/,
       )
       .first(),
   ).toBeVisible({ timeout: 30_000 });

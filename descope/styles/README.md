@@ -1,4 +1,4 @@
-# Travel Portal's flow style
+# TravelCorp's flow style
 
 `travel-portal.json` is the source for the `travel-portal` style in your project (console → Styles). The app
 selects it through `brand.descopeStyleId` in `packages/brand/brand.ts`, and `VITE_DESCOPE_STYLE_ID`
