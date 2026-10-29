@@ -22,7 +22,7 @@ vi.mock("../../../scripts/lib/descope", async (original) => ({
 
 it("seed then reset preserves existing project resources and removes only new ones", async () => {
   state.root = mkdtempSync(join(tmpdir(), "kit-provisioning-"));
-  // Parkdean's project as it was before this repo: their own role, built-in permissions, their
+  // The customer's project as it was before this repo: their own role, built-in permissions, their
   // own flow. Seed must reuse all of it and reset must leave all of it.
   const tenants = new Set<string>();
   const roles = new Map([["Customer Service", ["User Admin", "Impersonate"]]]);
@@ -30,7 +30,7 @@ it("seed then reset preserves existing project resources and removes only new on
     ["User Admin", [] as string[]],
     ["Impersonate", [] as string[]],
   ]);
-  const flows = new Set(["pd-sign-up-or-in"]);
+  const flows = new Set(["tp-sign-up-or-in"]);
   // Family Accounts is on; nothing family-shaped exists yet.
   const families = new Set<string>();
   const dependents = new Map<string, string>();
@@ -281,7 +281,7 @@ it("seed then reset preserves existing project resources and removes only new on
     expect(familyAttributes.size).toBe(0);
     expect([...roles.keys()]).toEqual(["Customer Service"]);
     expect([...permissions.keys()]).toEqual(["User Admin", "Impersonate"]);
-    expect([...flows]).toEqual(["pd-sign-up-or-in"]);
+    expect([...flows]).toEqual(["tp-sign-up-or-in"]);
     expect([...users.keys()]).toEqual(["existing", "ordinary"]);
 
     // An inventory outage must not look like an empty project: seed aborts before any write.

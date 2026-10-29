@@ -1,7 +1,7 @@
 {
   "flow": {
-    "id": "pd-mfa",
-    "name": "PD - Authenticator app MFA (optional)",
+    "id": "tp-mfa",
+    "name": "TP - Authenticator app MFA (optional)",
     "description": "Reusable subflow: challenges customers who enrolled an authenticator app; offers optional TOTP setup (any authenticator app) to new customers.",
     "dsl": {
       "startTask": "1",
@@ -222,7 +222,7 @@
   "screens": [
     {
       "id": "mfa-offer",
-      "flowId": "pd-mfa",
+      "flowId": "tp-mfa",
       "inputs": [],
       "interactions": [
         {
@@ -391,7 +391,7 @@
     },
     {
       "id": "mfa-setup",
-      "flowId": "pd-mfa",
+      "flowId": "tp-mfa",
       "inputs": [],
       "interactions": [
         {
@@ -546,7 +546,7 @@
     },
     {
       "id": "mfa-verify",
-      "flowId": "pd-mfa",
+      "flowId": "tp-mfa",
       "inputs": [],
       "interactions": [
         {
@@ -665,7 +665,7 @@
           "nodes": [],
           "parent": "ROOT",
           "props": {
-            "children": "Open your authenticator app and enter the 6-digit code for Parkdean Resorts.",
+            "children": "Open your authenticator app and enter the 6-digit code for Travel Portal.",
             "full-width": false,
             "id": "p1",
             "isEnriched": true,

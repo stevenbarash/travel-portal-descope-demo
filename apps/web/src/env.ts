@@ -5,7 +5,7 @@ const WebEnvSchema = z.object({
     .string()
     .min(1, "required: your Descope project ID"),
   VITE_DESCOPE_BASE_URL: z.url().optional(),
-  VITE_DESCOPE_FLOW_ID: z.string().default("pd-sign-up-or-in"),
+  VITE_DESCOPE_FLOW_ID: z.string().default("tp-sign-up-or-in"),
   VITE_DESCOPE_STEP_UP_FLOW_ID: z.string().default("demo-step-up"),
   /** Optional Descope style ID (console → Styles) applied to hosted flows. Overrides brand.descopeStyleId. */
   VITE_DESCOPE_STYLE_ID: z.string().optional(),

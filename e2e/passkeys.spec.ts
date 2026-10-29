@@ -5,7 +5,7 @@ import { addVirtualAuthenticator } from "./helpers/passkey";
 
 /**
  * Passkeys as the baseline (req 1): enroll after a first sign-in, then a returning customer signs
- * in with the passkey through Parkdean's identifier-first flow, no code to type. Uses a Chromium
+ * in with the passkey through Travel Portal's identifier-first flow, no code to type. Uses a Chromium
  * virtual authenticator. The guest's passkeys are removed before and after, so no other spec
  * sees one.
  *
@@ -61,7 +61,7 @@ test("magic link sign-in: 'Not now' on the passkey offer still signs in", async 
   await expect(page).toHaveURL(/\/me$/);
 });
 
-test("passkey: enroll after a magic link, then sign in with it through Parkdean's flow", async ({
+test("passkey: enroll after a magic link, then sign in with it through Travel Portal's flow", async ({
   page,
 }) => {
   const authenticator = await addVirtualAuthenticator(page);
@@ -91,7 +91,7 @@ test("passkey: enroll after a magic link, then sign in with it through Parkdean'
   expect(await authenticator.credentialCount()).toBe(1);
 
   // Returning customer, hosted flow: email first, then the passkey, no email round trip
-  // (pd-sign-up-or-in checks unauthUser.webauthn and device.webAuthnSupport).
+  // (tp-sign-up-or-in checks unauthUser.webauthn and device.webAuthnSupport).
   await loggedIn(page).click();
   // Sign-out is async: going to /login first would bounce the still-signed-in user to returnTo.
   await expect(loggedIn(page)).toHaveCount(0, { timeout: 15_000 });

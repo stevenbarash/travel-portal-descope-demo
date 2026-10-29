@@ -28,7 +28,7 @@ async function expectWhoamiWithBearer(page: Page) {
   expect(body.userId).toMatch(/^U/);
 }
 
-test("flow mode: protected page redirects, Parkdean's flow completes (email code), server validates", async ({
+test("flow mode: protected page redirects, Travel Portal's flow completes (email code), server validates", async ({
   page,
   context,
 }) => {
@@ -38,7 +38,7 @@ test("flow mode: protected page redirects, Parkdean's flow completes (email code
   await page.goto("/me");
   await expect(page).toHaveURL(/\/login\?returnTo=%2Fme$/);
 
-  // pd-sign-up-or-in: identifier first, then the email-verification subflow (test users have
+  // tp-sign-up-or-in: identifier first, then the email-verification subflow (test users have
   // no passkey or password).
   await continueWithEmail(page, GUEST.loginId);
   const how = await completeEmailVerification(page, context, GUEST);
@@ -54,7 +54,7 @@ test("flow mode: protected page redirects, Parkdean's flow completes (email code
   await expectWhoamiWithBearer(page);
 });
 
-test("FR switch: the app and Parkdean's flow render in French, EN switches back", async ({
+test("FR switch: the app and Travel Portal's flow render in French, EN switches back", async ({
   page,
   context,
 }) => {
@@ -63,7 +63,7 @@ test("FR switch: the app and Parkdean's flow render in French, EN switches back"
   );
   await page.goto("/login");
   const english = page
-    .getByText(/^(Sign in or create an account|Welcome to Parkdean Resorts)$/)
+    .getByText(/^(Sign in or create an account|Welcome to Travel Portal)$/)
     .first();
   await expect(english).toBeVisible({ timeout: 30_000 });
 
@@ -71,7 +71,7 @@ test("FR switch: the app and Parkdean's flow render in French, EN switches back"
   await expect(
     page
       .getByText(
-        /^(Connectez-vous ou créez un compte|Bienvenue chez Parkdean Resorts)$/,
+        /^(Connectez-vous ou créez un compte|Bienvenue chez Travel Portal)$/,
       )
       .first(),
   ).toBeVisible({ timeout: 30_000 });

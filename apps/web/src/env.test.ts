@@ -14,7 +14,7 @@ describe("parseWebEnv", () => {
     if (r.ok) {
       expect(r.env.VITE_AUTH_MODE).toBe("flow");
       expect(r.env.VITE_SESSION_VIA_COOKIE).toBe(false);
-      expect(r.env.VITE_DESCOPE_FLOW_ID).toBe("pd-sign-up-or-in");
+      expect(r.env.VITE_DESCOPE_FLOW_ID).toBe("tp-sign-up-or-in");
     }
   });
 });

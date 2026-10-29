@@ -57,12 +57,10 @@ export interface Brand {
 }
 
 export const brand: Brand = {
-  name: "Parkdean Resorts",
+  name: "Travel Portal",
   tagline:
-    "Holiday parks across England, Scotland and Wales. Book your next break.",
-  // Parkdean's logo. Transparent WebP; its blue "Resorts" is too
-  // dark on the dark palette, hence the white plate there.
-  logo: "/brand/logo.webp",
+    "Hotels and apartments in destinations worldwide. Book your next trip.",
+  logo: "/brand/logo.svg",
   favicon: "/favicon.svg",
   font: "Nunito Sans",
   fontImport: true,
@@ -72,7 +70,7 @@ export const brand: Brand = {
       foreground: "#0b2a4a",
       muted: "#5a6b7d",
       border: "#dbe3ea",
-      // Parkdean navy: white text on it passes contrast; their teal is the accent.
+      // Navy: white text on it passes contrast; teal is the accent.
       primary: "#0b2a4a",
       primaryForeground: "#ffffff",
       // Teal darkened from #00a7b5 so accent text stays readable on white.
@@ -91,16 +89,16 @@ export const brand: Brand = {
       accent: "#4fd1dc",
       danger: "#f97066",
       surface: "#0d2238",
-      logoPlate: "#ffffff",
+      logoPlate: "transparent",
     },
   },
-  // Parkdean's flow style (descope/styles/parkdean.json), imported into the project as a named style;
+  // The demo's flow style (descope/styles/travel-portal.json), imported into the project as a named style;
   // the project's default style is untouched.
-  descopeStyleId: "parkdean",
-  // The same look with flat containers (descope/styles/parkdean-widget.json), so My account's
+  descopeStyleId: "travel-portal",
+  // The same look with flat containers (descope/styles/travel-portal-widget.json), so My account's
   // widget sits in one card instead of a stack of shadowed ones.
-  descopeWidgetStyleId: "parkdean-widget",
-  // Both the default and the parkdean style are light-only, so embedded flows render light even
+  descopeWidgetStyleId: "travel-portal-widget",
+  // Both the default and the travel-portal style are light-only, so embedded flows render light even
   // when the app is dark.
   descopeTheme: "light",
 };

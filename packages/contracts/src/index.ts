@@ -81,27 +81,29 @@ export const KIT_PERMISSIONS = {
   familyImpersonateDependents: "Family Impersonate Dependents",
 } as const;
 export const KIT_ROLES = {
-  /** Project-level role for Parkdean's customer service team. */
+  /** Project-level role for the customer service team. */
   customerService: "Customer Service",
   /** Family role: a guardian in a Descope family (manages dependents, acts for them). */
   familyAdmin: "Family Admin",
 } as const;
 
 // ---- bookings (the domain entity) ----
-/** Parks the demo books into. A small, real-sounding subset of Parkdean's ~65 parks. */
-export const PARKS = [
-  { id: "cayton-bay", name: "Cayton Bay", region: "North Yorkshire" },
-  { id: "sandford", name: "Sandford", region: "Dorset" },
-  { id: "tummel-valley", name: "Tummel Valley", region: "Perthshire" },
-  { id: "newquay", name: "Newquay", region: "Cornwall" },
-  { id: "southerness", name: "Southerness", region: "Dumfries & Galloway" },
+/** Destinations the demo books into. */
+export const DESTINATIONS = [
+  { id: "santorini", name: "Santorini", region: "Greece" },
+  { id: "lisbon", name: "Lisbon", region: "Portugal" },
+  { id: "kyoto", name: "Kyoto", region: "Japan" },
+  { id: "cape-town", name: "Cape Town", region: "South Africa" },
+  { id: "banff", name: "Banff", region: "Canada" },
 ] as const;
-export const ParkId = z.enum(PARKS.map((p) => p.id) as [string, ...string[]]);
-export type ParkId = z.infer<typeof ParkId>;
-export const parkName = (id: string) =>
-  PARKS.find((p) => p.id === id)?.name ?? id;
+export const DestinationId = z.enum(
+  DESTINATIONS.map((p) => p.id) as [string, ...string[]],
+);
+export type DestinationId = z.infer<typeof DestinationId>;
+export const destinationName = (id: string) =>
+  DESTINATIONS.find((p) => p.id === id)?.name ?? id;
 
-export const Accommodation = z.enum(["caravan", "lodge"]);
+export const Accommodation = z.enum(["hotel", "apartment"]);
 export type Accommodation = z.infer<typeof Accommodation>;
 
 export const BookingStatus = z.enum(["upcoming", "cancelled"]);
@@ -112,14 +114,14 @@ export const PartyMember = z.object({ userId: z.string(), name: z.string() });
 export type PartyMember = z.infer<typeof PartyMember>;
 
 /**
- * A break at a park. Bookings live in a *scope*: `family:<familyId>` when the customer is in a
+ * A trip to a destination. Bookings live in a *scope*: `family:<familyId>` when the customer is in a
  * Descope family (every guardian sees the household's breaks), else `user:<userId>`. The scope is decided by the API from the validated session, never taken from the client.
  */
 export const Booking = z.object({
   id: z.string(),
   reference: z.string(),
   scope: z.string(),
-  park: ParkId,
+  destination: DestinationId,
   accommodation: Accommodation,
   /** Arrival date, YYYY-MM-DD. */
   arrival: z.iso.date(),
@@ -141,7 +143,7 @@ export type BookingList = z.infer<typeof BookingList>;
 
 /** The holiday part of a booking: what the "Book a break" form collects before sign-in. */
 export const CreateBooking = z.object({
-  park: ParkId,
+  destination: DestinationId,
   accommodation: Accommodation,
   arrival: z.iso.date(),
   nights: z.number().int().min(1).max(14),

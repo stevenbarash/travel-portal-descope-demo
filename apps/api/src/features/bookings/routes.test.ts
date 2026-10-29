@@ -162,8 +162,8 @@ const as = (who: string, init: RequestInit = {}) => ({
 const json = async (res: Response) =>
   (await res.json()) as Record<string, unknown>;
 const breakAt = {
-  park: "newquay",
-  accommodation: "caravan",
+  destination: "cape-town",
+  accommodation: "hotel",
   arrival: "2027-07-24",
   nights: 7,
   guests: 4,
@@ -249,7 +249,7 @@ describe("my bookings", () => {
       `${base}/api/bookings`,
       as("newbie", {
         method: "POST",
-        body: JSON.stringify({ ...breakAt, park: "atlantis" }),
+        body: JSON.stringify({ ...breakAt, destination: "atlantis" }),
       }),
     );
     expect(res.status).toBe(400);

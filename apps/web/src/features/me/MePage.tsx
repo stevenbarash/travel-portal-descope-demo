@@ -11,7 +11,7 @@ import { personalDataClaims } from "./tokenClaims";
 
 /**
  * My account. Top: Descope's User Profile widget, where customers manage their own name, email,
- * phone, passkeys, password and authenticator app, with no Parkdean code behind it.
+ * phone, passkeys, password and authenticator app, with no Travel Portal code behind it.
  * Below, behind the scenes: the user object the web SDK has, and what the API sees after
  * validating the same session server-side.
  */

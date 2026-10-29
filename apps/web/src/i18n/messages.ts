@@ -3,7 +3,7 @@ import { useLocale } from "./locale";
 /**
  * The app's own copy in English and French. The sign-in flows are translated in Descope
  * (descope/customer-flows/localization); this file covers everything else. Add a key to `en`
- * and TypeScript requires it in `fr`. Customer data (names, park names, audit actions, API and
+ * and TypeScript requires it in `fr`. Customer data (names, destination names, audit actions, API and
  * Descope error text) is shown as it comes.
  */
 const en = {
@@ -26,11 +26,11 @@ const en = {
   },
   home: {
     tagline:
-      "Holiday parks across England, Scotland and Wales. Book your next break.",
+      "Hotels and apartments in destinations worldwide. Book your next trip.",
     features: [
       {
         title: "One account for the whole family",
-        body: "Every booking, every park, and everyone you holiday with, from the kids to the dog.",
+        body: "Every booking, every destination, and everyone you travel with, from the kids to the dog.",
       },
       {
         title: "Sign in with a passkey",
@@ -41,7 +41,7 @@ const en = {
         body: "Start booking as a guest; sign in and you're straight back in your booking.",
       },
     ],
-    ourParks: "A few of our parks",
+    ourDestinations: "A few of our destinations",
     api: "API",
     apiConnected: "connected",
     apiUnreachable: (error: string) => `unreachable (${error})`,
@@ -108,7 +108,7 @@ const en = {
     passkey: "Sign in with a passkey",
     sso: "Continue with SSO",
   },
-  accommodation: { caravan: "Caravan", lodge: "Lodge" } as Record<
+  accommodation: { hotel: "Hotel", apartment: "Apartment" } as Record<
     string,
     string
   >,
@@ -116,8 +116,8 @@ const en = {
   guests: (n: number) => (n === 1 ? "1 guest" : `${n} guests`),
   book: {
     title: "Book a break",
-    subtitle: (parks: number) =>
-      `Caravans and lodges at ${parks} of our parks.`,
+    subtitle: (destinations: number) =>
+      `Hotels and apartments in ${destinations} destinations.`,
     steps: {
       details: "Your break",
       signin: "Sign in or create an account",
@@ -125,7 +125,7 @@ const en = {
     },
     invalidHoliday: "Check the dates, nights and number of guests.",
     invalidEmail: "Enter the email address for your booking.",
-    park: "Park",
+    destination: "Destination",
     stayIn: "Stay in a",
     arriving: "Arriving",
     nightsLabel: "Nights",
@@ -139,15 +139,15 @@ const en = {
     yourBreak: "Your break: ",
     changeLink: "change",
     signInIntro:
-      "Sign in or create your Parkdean account to finish booking. We've brought your details across from the booking form.",
+      "Sign in or create your Travel Portal account to finish booking. We've brought your details across from the booking form.",
     welcome: (name?: string) =>
       `Welcome${name ? `, ${name}` : ""}. Here's the break you were booking.`,
     stay: "Stay",
     account: "Account",
     confirm: "Confirm booking",
     booked: "You're booked!",
-    bookedSummary: (park: string, nights: string, date: string) =>
-      `${park}, ${nights} from ${date}.`,
+    bookedSummary: (destination: string, nights: string, date: string) =>
+      `${destination}, ${nights} from ${date}.`,
     reference: "Booking reference",
     seeAll: "See all my bookings",
     from: "from",
@@ -167,10 +167,10 @@ const en = {
   family: {
     title: "My family",
     subtitle:
-      "Everyone you holiday with on one Parkdean account. Grown-ups sign in with their own login; children and pets are on the account without one.",
+      "Everyone you holiday with on one Travel Portal account. Grown-ups sign in with their own login; children and pets are on the account without one.",
     none: "You're not in a family yet.",
     noneBody:
-      "Families are set up by Parkdean customer service or in the Descope console.",
+      "Families are set up by Travel Portal customer service or in the Descope console.",
     guardian: "Guardian",
     dependent: "No login",
     you: "you",
@@ -298,11 +298,11 @@ const fr: Messages = {
   },
   home: {
     tagline:
-      "Des parcs de vacances en Angleterre, en Écosse et au pays de Galles. Réservez votre prochain séjour.",
+      "Des hôtels et appartements dans le monde entier. Réservez votre prochain séjour.",
     features: [
       {
         title: "Un seul compte pour toute la famille",
-        body: "Toutes vos réservations, tous nos parcs, et tous ceux avec qui vous partez, des enfants jusqu'au chien.",
+        body: "Toutes vos réservations, toutes nos destinations, et tous ceux avec qui vous partez, des enfants jusqu'au chien.",
       },
       {
         title: "Connexion par clé d'accès",
@@ -313,7 +313,7 @@ const fr: Messages = {
         body: "Commencez à réserver sans compte ; connectez-vous et vous retrouvez votre réservation.",
       },
     ],
-    ourParks: "Quelques-uns de nos parcs",
+    ourDestinations: "Quelques-unes de nos destinations",
     api: "API",
     apiConnected: "connectée",
     apiUnreachable: (error) => `injoignable (${error})`,
@@ -382,12 +382,13 @@ const fr: Messages = {
     passkey: "Se connecter avec une clé d'accès",
     sso: "Continuer avec le SSO",
   },
-  accommodation: { caravan: "Mobil-home", lodge: "Lodge" },
+  accommodation: { hotel: "Hôtel", apartment: "Appartement" },
   nights: (n) => (n === 1 ? "1 nuit" : `${n} nuits`),
   guests: (n) => (n === 1 ? "1 personne" : `${n} personnes`),
   book: {
     title: "Réserver un séjour",
-    subtitle: (parks) => `Mobil-homes et lodges dans ${parks} de nos parcs.`,
+    subtitle: (destinations) =>
+      `Hôtels et appartements dans ${destinations} destinations.`,
     steps: {
       details: "Votre séjour",
       signin: "Connexion ou création de compte",
@@ -395,7 +396,7 @@ const fr: Messages = {
     },
     invalidHoliday: "Vérifiez les dates, le nombre de nuits et de personnes.",
     invalidEmail: "Saisissez l'adresse e-mail de votre réservation.",
-    park: "Parc",
+    destination: "Destination",
     stayIn: "Hébergement",
     arriving: "Arrivée",
     nightsLabel: "Nuits",
@@ -410,15 +411,15 @@ const fr: Messages = {
     yourBreak: "Votre séjour : ",
     changeLink: "modifier",
     signInIntro:
-      "Connectez-vous ou créez votre compte Parkdean pour finaliser la réservation. Nous avons repris les informations du formulaire.",
+      "Connectez-vous ou créez votre compte Travel Portal pour finaliser la réservation. Nous avons repris les informations du formulaire.",
     welcome: (name) =>
       `Bienvenue${name ? `, ${name}` : ""}. Voici le séjour que vous étiez en train de réserver.`,
     stay: "Hébergement",
     account: "Compte",
     confirm: "Confirmer la réservation",
     booked: "C'est réservé !",
-    bookedSummary: (park, nights, date) =>
-      `${park}, ${nights} à partir du ${date}.`,
+    bookedSummary: (destination, nights, date) =>
+      `${destination}, ${nights} à partir du ${date}.`,
     reference: "Référence de réservation",
     seeAll: "Voir toutes mes réservations",
     from: "à partir du",
@@ -439,10 +440,10 @@ const fr: Messages = {
   family: {
     title: "Ma famille",
     subtitle:
-      "Tous ceux avec qui vous partez en vacances, sur un seul compte Parkdean. Les adultes se connectent avec leur propre identifiant ; les enfants et les animaux figurent sur le compte sans en avoir.",
+      "Tous ceux avec qui vous partez en vacances, sur un seul compte Travel Portal. Les adultes se connectent avec leur propre identifiant ; les enfants et les animaux figurent sur le compte sans en avoir.",
     none: "Vous ne faites pas encore partie d'une famille.",
     noneBody:
-      "Les familles sont créées par le service client Parkdean ou dans la console Descope.",
+      "Les familles sont créées par le service client Travel Portal ou dans la console Descope.",
     guardian: "Responsable",
     dependent: "Sans identifiant",
     you: "vous",

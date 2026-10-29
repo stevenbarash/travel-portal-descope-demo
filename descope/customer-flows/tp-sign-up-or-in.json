@@ -1,8 +1,8 @@
 {
   "flow": {
-    "id": "pd-sign-up-or-in",
-    "name": "PD - Sign up or in",
-    "description": "Parkdean main journey. Personalised + A/B tested welcome, identifier-first: passkey if the user has one and the device supports it, else password, else email code/link. Booking data passed as form.* pre-fills.",
+    "id": "tp-sign-up-or-in",
+    "name": "TP - Sign up or in",
+    "description": "Travel Portal main journey. Personalised + A/B tested welcome, identifier-first: passkey if the user has one and the device supports it, else password, else email code/link. Booking data passed as form.* pre-fills.",
     "dsl": {
       "startTask": "0",
       "tasks": {
@@ -256,7 +256,7 @@
           "arguments": {
             "flowId": {
               "type": "inline",
-              "value": "pd-email-verify"
+              "value": "tp-email-verify"
             }
           },
           "id": "6",
@@ -328,7 +328,7 @@
           "arguments": {
             "flowId": {
               "type": "inline",
-              "value": "pd-profile"
+              "value": "tp-profile"
             }
           },
           "id": "9",
@@ -479,7 +479,7 @@
           "arguments": {
             "flowId": {
               "type": "inline",
-              "value": "pd-mfa"
+              "value": "tp-mfa"
             }
           },
           "id": "14",
@@ -664,7 +664,7 @@
   "screens": [
     {
       "id": "offer-passkey",
-      "flowId": "pd-sign-up-or-in",
+      "flowId": "tp-sign-up-or-in",
       "inputs": [],
       "interactions": [
         {
@@ -837,7 +837,7 @@
     },
     {
       "id": "password",
-      "flowId": "pd-sign-up-or-in",
+      "flowId": "tp-sign-up-or-in",
       "inputs": [],
       "interactions": [
         {
@@ -1031,7 +1031,7 @@
     },
     {
       "id": "set-password",
-      "flowId": "pd-sign-up-or-in",
+      "flowId": "tp-sign-up-or-in",
       "inputs": [],
       "interactions": [
         {
@@ -1242,7 +1242,7 @@
     },
     {
       "id": "welcome-a",
-      "flowId": "pd-sign-up-or-in",
+      "flowId": "tp-sign-up-or-in",
       "inputs": [],
       "interactions": [
         {
@@ -1522,7 +1522,7 @@
           "nodes": [],
           "parent": "ROOT",
           "props": {
-            "children": "Manage your Parkdean Resorts breaks in one place.",
+            "children": "Manage your Travel Portal breaks in one place.",
             "full-width": false,
             "id": "p1",
             "isEnriched": true,
@@ -1541,7 +1541,7 @@
     },
     {
       "id": "welcome-b",
-      "flowId": "pd-sign-up-or-in",
+      "flowId": "tp-sign-up-or-in",
       "inputs": [],
       "interactions": [
         {
@@ -1752,7 +1752,7 @@
           "parent": "ROOT",
           "props": {
             "align": "center",
-            "children": "Welcome to Parkdean Resorts",
+            "children": "Welcome to Travel Portal",
             "full-width": false,
             "id": "h1",
             "isEnriched": true,

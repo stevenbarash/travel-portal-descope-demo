@@ -1,5 +1,5 @@
 {
-  "styleId": "parkdean-widget",
+  "styleId": "travel-portal",
   "globals": {
     "colors": {
       "primary": {
@@ -117,17 +117,18 @@
   },
   "components": {
     "container": {
-      "--descope-container-background-color": "transparent",
-      "--descope-container-border-radius": "0",
-      "--descope-container-border-width": "0",
-      "--descope-container-box-shadow": "none"
+      "--descope-container-background-color": "var(--descope-colors-surface-main)",
+      "--descope-container-border-radius": "var(--descope-radius-xl)",
+      "--descope-container-border-style": "solid",
+      "--descope-container-border-width": "1px",
+      "--descope-container-border-color": "#E4EBF2",
+      "--descope-container-shadow-color": "#0B2A4A14",
+      "--descope-container-box-shadow": "var(--descope-shadow-wide-xl) var(--descope-container-shadow-color), var(--descope-shadow-narrow-md) var(--descope-container-shadow-color)"
     },
     "text": {
       "--descope-text-text-line-height": "1.45em",
       "variant": {
-        "h2": {
-          "--descope-text-text-line-height": "1.2em"
-        }
+        "h2": { "--descope-text-text-line-height": "1.2em" }
       }
     },
     "button": {
@@ -174,22 +175,18 @@
     },
     "divider": {
       "--descope-divider-thickness": "1px",
-      "--descope-divider-spacing": "8px",
+      "--descope-divider-spacing": "14px",
       "--descope-divider-stripe-color": "var(--descope-colors-surface-light)",
       "--descope-divider-stripe-color-opacity": "1"
     },
     "loaderLinear": {
       "mode": {
-        "primary": {
-          "--descope-loader-linear-bar-color": "#00A7B5"
-        }
+        "primary": { "--descope-loader-linear-bar-color": "#00A7B5" }
       }
     },
     "loaderRadial": {
       "mode": {
-        "primary": {
-          "--descope-loader-radial-spinner-color": "#0B2A4A"
-        }
+        "primary": { "--descope-loader-radial-spinner-color": "#0B2A4A" }
       }
     }
   }

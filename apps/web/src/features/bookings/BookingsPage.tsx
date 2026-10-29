@@ -2,9 +2,9 @@ import { useUser } from "@descope/react-sdk";
 import {
   type Booking,
   BookingList,
+  DESTINATIONS,
+  destinationName,
   MyFamily,
-  PARKS,
-  parkName,
 } from "@kit/contracts";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -19,7 +19,7 @@ import {
 import { useT } from "../../i18n/messages";
 
 /**
- * One customer profile, every booking (the thing Parkdean's booking-only login can't do). In a
+ * One customer profile, every booking (the thing a booking-only login can't do). In a
  * Descope family the list is the household's: Gemma and Sam each sign in as themselves and see
  * the same breaks.
  */
@@ -115,9 +115,9 @@ export function BookingTable({
           >
             <div className="min-w-0 flex-1">
               <div className="text-base font-semibold">
-                {parkName(b.park)}{" "}
+                {destinationName(b.destination)}{" "}
                 <span className="font-normal text-muted">
-                  · {regionOf(b.park)}
+                  · {regionOf(b.destination)}
                 </span>
               </div>
               <div className="text-muted">
@@ -160,7 +160,8 @@ function partyNames(party: { name: string }[], locale: Locale) {
   }).format(party.map((p) => p.name.split(/\s+/)[0] ?? p.name));
 }
 
-const regionOf = (id: string) => PARKS.find((p) => p.id === id)?.region ?? "";
+const regionOf = (id: string) =>
+  DESTINATIONS.find((p) => p.id === id)?.region ?? "";
 
 function errorMessage(e: unknown) {
   return e instanceof ApiRequestError

@@ -1,9 +1,9 @@
 import { useSession } from "@descope/react-sdk";
 import { brand } from "@kit/brand";
 import {
+  DESTINATIONS,
   type HealthResponse,
   HealthResponse as HealthSchema,
-  PARKS,
 } from "@kit/contracts";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -58,9 +58,9 @@ export function HomePage() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-xl font-bold">{t.home.ourParks}</h2>
+        <h2 className="mb-4 text-xl font-bold">{t.home.ourDestinations}</h2>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {PARKS.map((p) => (
+          {DESTINATIONS.map((p) => (
             <li key={p.id}>
               <Link
                 to="/book"

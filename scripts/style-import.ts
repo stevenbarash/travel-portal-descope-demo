@@ -4,7 +4,7 @@ import { loadScriptEnv } from "./lib/descope";
 
 /**
  * Import one named Descope style (Code Mode JSON: { styleId, globals, components }) as its light
- * flavor: `pnpm style:import descope/styles/parkdean-widget.json [--plan]`.
+ * flavor: `pnpm style:import descope/styles/travel-portal-widget.json [--plan]`.
  *
  * `/v2/mgmt/theme/import` creates or overwrites only the styles it carries; the project's default
  * style and every other named style are untouched. The SDK's `management.theme.import` takes the

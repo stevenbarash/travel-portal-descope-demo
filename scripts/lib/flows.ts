@@ -87,13 +87,13 @@ export async function resetFlows(
 
 /**
  * The customer's own flows (not managed by seed/reset): a read-only copy kept in the repo so the
- * demo's login journey is reviewable and restorable. Parkdean's flows are `pd-*`.
+ * demo's login journey is reviewable and restorable. Travel Portal's flows are `tp-*`.
  */
 export const CUSTOMER_FLOWS_DIR = resolve(
   import.meta.dirname,
   "../../descope/customer-flows",
 );
-export const CUSTOMER_FLOW_PREFIX = "pd-";
+export const CUSTOMER_FLOW_PREFIX = "tp-";
 
 /**
  * Export the project's current flows with `prefix` into `dir`: by default the kit's `demo-*` flows

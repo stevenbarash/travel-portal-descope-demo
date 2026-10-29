@@ -24,7 +24,7 @@
   --brand-accent: #4fd1dc;
   --brand-danger: #f97066;
   --brand-surface: #0d2238;
-  --brand-logo-plate: #ffffff;
+  --brand-logo-plate: transparent;
   }
 }
 
@@ -38,5 +38,5 @@
   --brand-accent: #4fd1dc;
   --brand-danger: #f97066;
   --brand-surface: #0d2238;
-  --brand-logo-plate: #ffffff;
+  --brand-logo-plate: transparent;
 }

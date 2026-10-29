@@ -1,11 +1,11 @@
-import type { Accommodation, ParkId } from "@kit/contracts";
+import type { Accommodation, DestinationId } from "@kit/contracts";
 
 /**
  * A booking in progress, kept in localStorage so the customer comes back to it wherever they left
  * off (req 15): through a sign-in redirect, a page reload, or a magic link opened in another tab.
  */
 export interface BookingDraft {
-  park: ParkId;
+  destination: DestinationId;
   accommodation: Accommodation;
   arrival: string;
   nights: number;
@@ -18,7 +18,7 @@ export interface BookingDraft {
   step: "details" | "signin" | "review";
 }
 
-const KEY = "pd.bookingDraft";
+const KEY = "tp.bookingDraft";
 
 /** A Friday about two months out: a typical next break. */
 function nextBreak(): string {
@@ -30,8 +30,8 @@ function nextBreak(): string {
 
 export function newDraft(): BookingDraft {
   return {
-    park: "cayton-bay",
-    accommodation: "lodge",
+    destination: "santorini",
+    accommodation: "apartment",
     arrival: nextBreak(),
     nights: 3,
     guests: 4,

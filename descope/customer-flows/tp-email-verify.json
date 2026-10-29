@@ -1,7 +1,7 @@
 {
   "flow": {
-    "id": "pd-email-verify",
-    "name": "PD - Email verification (code or link)",
+    "id": "tp-email-verify",
+    "name": "TP - Email verification (code or link)",
     "description": "Reusable subflow: email OTP with masked address and resend; optional magic link alternative.",
     "dsl": {
       "startTask": "1",
@@ -189,7 +189,7 @@
   "screens": [
     {
       "id": "ev-code",
-      "flowId": "pd-email-verify",
+      "flowId": "tp-email-verify",
       "inputs": [],
       "interactions": [
         {
@@ -395,7 +395,7 @@
     },
     {
       "id": "ev-done",
-      "flowId": "pd-email-verify",
+      "flowId": "tp-email-verify",
       "inputs": [],
       "interactions": [],
       "htmlTemplate": {
@@ -475,7 +475,7 @@
     },
     {
       "id": "ev-link",
-      "flowId": "pd-email-verify",
+      "flowId": "tp-email-verify",
       "inputs": [],
       "interactions": [
         {

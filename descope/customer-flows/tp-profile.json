@@ -1,7 +1,7 @@
 {
   "flow": {
-    "id": "pd-profile",
-    "name": "PD - Progressive profile",
+    "id": "tp-profile",
+    "name": "TP - Progressive profile",
     "description": "Reusable subflow: collects the customer name only if missing; uses booking details passed in as form.displayName so customers never re-enter them.",
     "dsl": {
       "startTask": "1",
@@ -177,7 +177,7 @@
   "screens": [
     {
       "id": "pr-name",
-      "flowId": "pd-profile",
+      "flowId": "tp-profile",
       "inputs": [],
       "interactions": [
         {

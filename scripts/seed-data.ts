@@ -95,7 +95,7 @@ export const PERMISSIONS = [
 
 /**
  * Seed reuses the project's existing "Customer Service" role: it holds both permissions, so the
- * plan preserves it rather than conflicting. Parkdean customers need no role at all.
+ * plan preserves it rather than conflicting. Travel Portal customers need no role at all.
  */
 export const ROLES = [
   {
@@ -110,7 +110,7 @@ export const ROLES = [
   },
 ] as const;
 
-/** B2C only: Parkdean has no organizations and no SSO. */
+/** B2C only: Travel Portal has no organizations and no SSO. */
 export const TENANTS: readonly SeedTenant[] = [];
 
 /** Tenants seed configures SAML SSO on (mocksaml). */
@@ -119,7 +119,7 @@ export const SSO_TENANTS = TENANTS.filter(
 );
 
 /**
- * A returning Parkdean customer: personal account, no roles. The bookings API gives this persona
+ * A returning Travel Portal customer: personal account, no roles. The bookings API gives this persona
  * (and its plus-addressed demo login) three past/upcoming breaks — see `isReturningGuest`.
  */
 export const GUEST_USER: SeedUser = {
@@ -129,7 +129,7 @@ export const GUEST_USER: SeedUser = {
   roles: [],
 };
 
-/** Parkdean customer service: finds customers, views their bookings, impersonates. */
+/** Travel Portal customer service: finds customers, views their bookings, impersonates. */
 export const AGENT_USER: SeedUser = {
   loginId: "agent@example.com",
   displayName: "Alex Agent",

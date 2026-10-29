@@ -37,25 +37,25 @@ function inDays(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** A returning guest's history: one past break, two upcoming. Reads as real to Parkdean. */
+/** A returning guest's history: one past break, two upcoming. */
 const SAMPLES: NewBooking[] = [
   {
-    park: "sandford",
-    accommodation: "caravan",
+    destination: "lisbon",
+    accommodation: "hotel",
     arrival: inDays(-180),
     nights: 4,
     guests: 4,
   },
   {
-    park: "cayton-bay",
-    accommodation: "lodge",
+    destination: "santorini",
+    accommodation: "apartment",
     arrival: inDays(45),
     nights: 7,
     guests: 4,
   },
   {
-    park: "tummel-valley",
-    accommodation: "lodge",
+    destination: "kyoto",
+    accommodation: "apartment",
     arrival: inDays(160),
     nights: 3,
     guests: 2,

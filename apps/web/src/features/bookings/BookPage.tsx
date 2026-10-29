@@ -3,10 +3,10 @@ import {
   type Booking,
   Booking as BookingSchema,
   CreateBooking,
+  DESTINATIONS,
+  destinationName,
   type FamilyMember,
   MyFamily,
-  PARKS,
-  parkName,
 } from "@kit/contracts";
 import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -26,7 +26,7 @@ import {
 /**
  * "Book a break" — public, no login needed to browse (anonymous guests are free).
  *  1. The customer picks a break and enters their email and name, like any booking form.
- *  2. "Continue to book" opens Parkdean's own sign-up-or-in flow right here, with the booking
+ *  2. "Continue to book" opens Travel Portal's own sign-up-or-in flow right here, with the booking
  *     details passed in as flow input: the email is pre-filled, the name is saved without asking
  *     again (req 3, +), and Apple Pay customers see Apple first (req 20).
  *  3. After sign-in they land back on this booking, at the confirm step (req 15). The draft is in
@@ -60,7 +60,7 @@ export function BookPage() {
     <section className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         title={t.book.title}
-        subtitle={t.book.subtitle(PARKS.length)}
+        subtitle={t.book.subtitle(DESTINATIONS.length)}
       />
       <Steps step={draft.step} />
       {draft.step === "details" && (
@@ -164,16 +164,18 @@ function DetailsStep({
       className="space-y-4 rounded border border-border bg-surface p-4"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t.book.park}>
+        <Field label={t.book.destination}>
           <select
             className={input}
-            data-testid="book-park"
-            value={draft.park}
+            data-testid="book-destination"
+            value={draft.destination}
             onChange={(e) =>
-              update({ park: e.target.value as BookingDraft["park"] })
+              update({
+                destination: e.target.value as BookingDraft["destination"],
+              })
             }
           >
-            {PARKS.map((p) => (
+            {DESTINATIONS.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}, {p.region}
               </option>
@@ -191,8 +193,8 @@ function DetailsStep({
               })
             }
           >
-            <option value="caravan">{t.accommodation.caravan}</option>
-            <option value="lodge">{t.accommodation.lodge}</option>
+            <option value="hotel">{t.accommodation.hotel}</option>
+            <option value="apartment">{t.accommodation.apartment}</option>
           </select>
         </Field>
         <Field label={t.book.arriving}>
@@ -273,7 +275,7 @@ function DetailsStep({
   );
 }
 
-/** Parkdean's own flow, embedded in the booking page, with the booking details as its input. */
+/** Travel Portal's own flow, embedded in the booking page, with the booking details as its input. */
 function SignInStep({
   draft,
   onBack,
@@ -394,8 +396,10 @@ function ReviewStep({
         {t.book.welcome(user?.name)}
       </p>
       <dl className="grid grid-cols-[8rem_1fr] gap-y-1 text-sm">
-        <dt className="text-muted">{t.book.park}</dt>
-        <dd data-testid="book-review-park">{parkName(draft.park)}</dd>
+        <dt className="text-muted">{t.book.destination}</dt>
+        <dd data-testid="book-review-destination">
+          {destinationName(draft.destination)}
+        </dd>
         <dt className="text-muted">{t.book.stay}</dt>
         <dd>{t.accommodation[draft.accommodation]}</dd>
         <dt className="text-muted">{t.book.arriving}</dt>
@@ -472,7 +476,7 @@ function Confirmed({ booking }: { booking: Booking }) {
       <h2 className="text-2xl font-semibold">{t.book.booked}</h2>
       <p>
         {t.book.bookedSummary(
-          parkName(booking.park),
+          destinationName(booking.destination),
           t.nights(booking.nights),
           formatDate(booking.arrival, locale),
         )}
@@ -492,5 +496,5 @@ function Confirmed({ booking }: { booking: Booking }) {
 }
 
 function summary(d: BookingDraft, t: Messages, locale: Locale) {
-  return `${parkName(d.park)} · ${t.accommodation[d.accommodation]} · ${t.nights(d.nights)} ${t.book.from} ${formatDate(d.arrival, locale)} · ${t.guests(d.guests)}`;
+  return `${destinationName(d.destination)} · ${t.accommodation[d.accommodation]} · ${t.nights(d.nights)} ${t.book.from} ${formatDate(d.arrival, locale)} · ${t.guests(d.guests)}`;
 }

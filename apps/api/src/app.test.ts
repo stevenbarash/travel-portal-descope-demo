@@ -54,8 +54,8 @@ describe("api", () => {
     await deps.bookings.create(
       "user:U1",
       {
-        park: "sandford",
-        accommodation: "lodge",
+        destination: "lisbon",
+        accommodation: "apartment",
         arrival: "2027-05-01",
         nights: 3,
         guests: 2,

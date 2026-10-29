@@ -7,7 +7,7 @@ import { useSyncExternalStore } from "react";
 export const LOCALES = ["en", "fr"] as const;
 export type Locale = (typeof LOCALES)[number];
 
-/** For Intl date formatting: Parkdean is a UK business, so English means en-GB. */
+/** For Intl date formatting: the demo is UK-based, so English means en-GB. */
 export const INTL_LOCALE: Record<Locale, string> = { en: "en-GB", fr: "fr-FR" };
 
 const STORAGE_KEY = "kit.locale";

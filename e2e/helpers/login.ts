@@ -137,7 +137,7 @@ export async function completeEmailVerification(
 }
 
 /**
- * Parkdean's welcome screen (pd-sign-up-or-in) comes in two A/B variants: "Continue" (email first)
+ * Travel Portal's welcome screen (tp-sign-up-or-in) comes in two A/B variants: "Continue" (email first)
  * or "Continue with email" (Apple first). Fill the email if it isn't pre-filled and continue.
  */
 export async function continueWithEmail(
@@ -154,7 +154,7 @@ export async function continueWithEmail(
 }
 
 /**
- * After verification, pd-sign-up-or-in may offer a passkey or password ("Not now" / "Skip for
+ * After verification, tp-sign-up-or-in may offer a passkey or password ("Not now" / "Skip for
  * now") and, for a first-seen customer, an authenticator app ("Not now"). Decline whichever
  * appear until `done` shows.
  */

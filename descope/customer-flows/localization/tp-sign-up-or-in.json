@@ -1,9 +1,9 @@
 {
-  "flowId": "pd-sign-up-or-in",
+  "flowId": "tp-sign-up-or-in",
   "languages": {
     "fr": {
       "me-a.h1.text": "Connectez-vous ou créez un compte",
-      "me-a.p1.text": "Gérez tous vos séjours Parkdean Resorts au même endroit.",
+      "me-a.p1.text": "Gérez tous vos séjours Travel Portal au même endroit.",
       "me-a.email.email-input.label": "E-mail",
       "me-a.email.email-input.placeholder": "E-mail",
       "me-a.hp.bot-trap.placeholder": "Votre e-mail",
@@ -12,7 +12,7 @@
       "me-a.google.google-button": "Continuer avec Google",
       "me-a.apple.apple-button": "Continuer avec Apple",
 
-      "me-b.h1.text": "Bienvenue chez Parkdean Resorts",
+      "me-b.h1.text": "Bienvenue chez Travel Portal",
       "me-b.p1.text": "Connectez-vous ou créez un compte en quelques secondes.",
       "me-b.apple.apple-button": "Continuer avec Apple",
       "me-b.google.google-button": "Continuer avec Google",

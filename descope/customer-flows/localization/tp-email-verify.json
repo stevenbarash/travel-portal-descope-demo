@@ -1,5 +1,5 @@
 {
-  "flowId": "pd-email-verify",
+  "flowId": "tp-email-verify",
   "languages": {
     "fr": {
       "code.h1.text": "Consultez vos e-mails",

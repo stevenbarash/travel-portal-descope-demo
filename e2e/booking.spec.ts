@@ -13,15 +13,15 @@ import {
  * booking under one profile.
  */
 
-test("signed out: booking details flow into Parkdean's sign-in, then back to the same booking", async ({
+test("signed out: booking details flow into Travel Portal's sign-in, then back to the same booking", async ({
   page,
   context,
 }) => {
   await page.goto("/book");
-  await page.evaluate(() => window.localStorage.removeItem("pd.bookingDraft"));
+  await page.evaluate(() => window.localStorage.removeItem("tp.bookingDraft"));
   await page.reload();
-  await page.getByTestId("book-park").selectOption("newquay");
-  await page.getByTestId("book-accommodation").selectOption("caravan");
+  await page.getByTestId("book-destination").selectOption("cape-town");
+  await page.getByTestId("book-accommodation").selectOption("hotel");
   await page.getByTestId("book-email").fill(GUEST.loginId);
   await page.getByTestId("book-name").fill(GUEST.displayName);
   await page.getByTestId("book-applepay").check();
@@ -52,7 +52,9 @@ test("signed out: booking details flow into Parkdean's sign-in, then back to the
   await declinePdOffers(page, review);
 
   // Back on the same booking, at the confirm step (req 15).
-  await expect(page.getByTestId("book-review-park")).toHaveText("Newquay");
+  await expect(page.getByTestId("book-review-destination")).toHaveText(
+    "Cape Town",
+  );
   // Who's coming: the guest's Descope family, everyone ticked. Leave the dog at home.
   const party = page.getByTestId("book-party");
   await expect(party).toContainText("Mia Guest");
@@ -65,7 +67,7 @@ test("signed out: booking details flow into Parkdean's sign-in, then back to the
   await expect(page.getByTestId("booking-row")).toHaveCount(4);
   const newquay = page
     .getByTestId("booking-row")
-    .filter({ hasText: "Newquay" });
+    .filter({ hasText: "Cape Town" });
   await expect(newquay).toBeVisible();
   await expect(newquay.getByTestId("booking-party")).toContainText("Mia");
   await expect(newquay.getByTestId("booking-party")).not.toContainText(
@@ -80,10 +82,10 @@ test("a booking interrupted by sign-in resumes where the customer left off", asy
   await page.goto("/");
   await page.evaluate(() =>
     window.localStorage.setItem(
-      "pd.bookingDraft",
+      "tp.bookingDraft",
       JSON.stringify({
-        park: "southerness",
-        accommodation: "lodge",
+        destination: "banff",
+        accommodation: "apartment",
         arrival: "2027-08-06",
         nights: 7,
         guests: 5,
@@ -96,7 +98,7 @@ test("a booking interrupted by sign-in resumes where the customer left off", asy
   );
   await loginViaSdk(page, GUEST, "/book");
   await expect(page.getByTestId("book-review")).toBeVisible();
-  await expect(page.getByTestId("book-review-park")).toHaveText("Southerness");
+  await expect(page.getByTestId("book-review-destination")).toHaveText("Banff");
 });
 
 test("returning guest: every booking on one account", async ({ page }) => {
