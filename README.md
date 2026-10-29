@@ -8,14 +8,14 @@ project.
 
 ## What's in it
 
-| Page | What it shows |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Book a break** (`/book`) | Book without an account. "Continue to book" embeds the portal's sign-up-or-in flow on the page, with the email and name carried over from the form and Apple first for Apple Pay customers. After sign-in you land back on the same booking. "Who's coming?" lists your family. |
-| **Sign in** (`/login`) | The portal's sign-in flow: passkeys where the device supports them, Apple and Google, email code or link with a masked address and resend, password with your policy, optional authenticator app, a 50/50 A/B welcome variant, a honeypot bot trap. EN/FR switch in the header. |
-| **My bookings** (`/bookings`) | Every booking on one profile, shared by the household. |
-| **My family** (`/family`) | Descope Family Accounts: guardians who sign in as themselves, dependents (children, pets) with no login, adding and removing dependents, and "Act for" a dependent with the guardian named in the token. |
-| **My account** (`/me`) | Descope's User Profile widget for self-service (name, email, phone, passkeys, password, authenticator app), next to the validated session and its claims. |
-| **Customer service** (`/service`) | For the Customer Service role: find a customer, see their family, bookings and audit trail, and view the account as the customer, with the agent named in the token. |
+| Page                              | What it shows                                                                                                                                                                                                                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Book a break** (`/book`)        | Book without an account. "Continue to book" embeds the portal's sign-up-or-in flow on the page, with the email and name carried over from the form and Apple first for Apple Pay customers. After sign-in you land back on the same booking. "Who's coming?" lists your family. |
+| **Sign in** (`/login`)            | The portal's sign-in flow: passkeys where the device supports them, Apple and Google, email code or link with a masked address and resend, password with your policy, optional authenticator app, a 50/50 A/B welcome variant, a honeypot bot trap. EN/FR switch in the header. |
+| **My bookings** (`/bookings`)     | Every booking on one profile, shared by the household.                                                                                                                                                                                                                          |
+| **My family** (`/family`)         | Descope Family Accounts: guardians who sign in as themselves, dependents (children, pets) with no login, adding and removing dependents, and "Act for" a dependent with the guardian named in the token.                                                                        |
+| **My account** (`/me`)            | Descope's User Profile widget for self-service (name, email, phone, passkeys, password, authenticator app), next to the validated session and its claims.                                                                                                                       |
+| **Customer service** (`/service`) | For the Customer Service role: find a customer, see their family, bookings and audit trail, and view the account as the customer, with the agent named in the token.                                                                                                            |
 
 ## How it's built
 
@@ -37,8 +37,8 @@ project.
 
 ## Run it against your Descope project
 
-You need Node 20.19+ (CI uses 24) and pnpm (`corepack enable`), plus a Descope project and a management key
-(console → Company → Management Keys).
+You need Node 20.19+ (CI uses 24) and npm 12+ (`npm install -g npm@12` if yours is older), plus a
+Descope project and a management key (console → Company → Management Keys).
 
 **1. In the Descope console**
 - **Flows → Import flow**: import the four files in `descope/customer-flows/`, subflows first
@@ -56,37 +56,37 @@ You need Node 20.19+ (CI uses 24) and pnpm (`corepack enable`), plus a Descope p
 
 **2. Locally**
 ```bash
-pnpm install
+npm install
 cp .env.example .env        # fill in the project ID (twice) and the management key
-pnpm style:import descope/styles/travel-portal.json
-pnpm style:import descope/styles/travel-portal-widget.json
-pnpm seed:plan              # read-only: what seed will create
-pnpm seed                   # personas, roles, the Guest family
-pnpm dev                    # web on http://localhost:5173, API on :3001
+npm run style:import descope/styles/travel-portal.json
+npm run style:import descope/styles/travel-portal-widget.json
+npm run seed:plan              # read-only: what seed will create
+npm run seed                   # personas, roles, the Guest family
+npm run dev                    # web on http://localhost:5173, API on :3001
 ```
 
-`pnpm seed` creates:
+`npm run seed` creates:
 - the roles "Customer Service" (User Admin, Impersonate) and "Family Admin" (Family Impersonate
   Dependents); existing roles with those names are reused, never edited;
 - test users `guest@example.com` (Gemma), `partner@example.com` (Sam) and `agent@example.com`
   (Alex, customer service);
 - "The Guest family": Gemma and Sam are guardians, Mia, Leo and Biscuit are dependents.
 
-Test users don't receive email: `pnpm otp guest@example.com` prints a sign-in code. To sign in with
+Test users don't receive email: `npm run otp guest@example.com` prints a sign-in code. To sign in with
 a real inbox, set `DEMO_EMAIL` in `.env` before seeding, and seed also creates `you+guest@…`,
-`you+partner@…` and `you+agent@…`. `pnpm users` lists who to sign in as.
+`you+partner@…` and `you+agent@…`. `npm run users` lists who to sign in as.
 
-`pnpm reset` removes only what seed created (it keeps a local record in `.kit-state/`). Everything
+`npm run reset` removes only what seed created (it keeps a local record in `.kit-state/`). Everything
 else in the project is left alone.
 
 ## Checks
 
-| Command             | What                                                                                      |
-| ------------------- | ----------------------------------------------------------------------------------------- |
-| `pnpm check`        | typecheck, lint, brand check, unit tests (no Descope project needed)                      |
-| `pnpm check:full`   | the above plus the Playwright suite against the project in `.env` (stop `pnpm dev` first) |
-| `pnpm inspect`      | what's in the project: flows, roles, permissions, families                                |
-| `pnpm flows:export` | refresh the flow JSON from the project                                                    |
+| Command                | What                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| `npm run check`        | typecheck, lint, brand check, unit tests (no Descope project needed)                         |
+| `npm run check:full`   | the above plus the Playwright suite against the project in `.env` (stop `npm run dev` first) |
+| `npm run inspect`      | what's in the project: flows, roles, permissions, families                                   |
+| `npm run flows:export` | refresh the flow JSON from the project                                                       |
 
 The Debug button (bottom right) shows the decoded session, copies tokens, calls any API route and
 simulates a session timeout.

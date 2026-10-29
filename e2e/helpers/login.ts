@@ -1,4 +1,9 @@
-import { type BrowserContext, expect, type Page } from "@playwright/test";
+import {
+  type BrowserContext,
+  expect,
+  type Locator,
+  type Page,
+} from "@playwright/test";
 import {
   AGENT_USER,
   GUEST_USER,
@@ -7,6 +12,7 @@ import {
 } from "../../scripts/seed-data";
 import { magicLinkTo, otpFor } from "./descope";
 
+/** Seeded personas, re-exported so specs import users from one place. */
 export const GUEST = GUEST_USER;
 export const AGENT = AGENT_USER;
 export const PARTNER = PARTNER_USER;
@@ -20,8 +26,8 @@ export const loginTenantOf = (user: SeedUser): string | undefined =>
 export const APP_URL = "http://localhost:5173";
 
 /**
- * After a magic-link sign-in the kit offers a passkey (flow: the promote-passkeys subflow; SDK
- * mode: its own offer). Decline it so the sign-in finishes; passkeys.spec covers accepting.
+ * After a magic-link sign-in the flow's promote-passkeys subflow offers a passkey. Decline it so
+ * the sign-in finishes; passkeys.spec covers accepting.
  */
 export async function declinePasskeyOffer(page: Page) {
   const loggedIn = page.getByRole("button", { name: "Log out" });
@@ -40,22 +46,31 @@ export async function declinePasskeyOffer(page: Page) {
 }
 
 /**
- * Deterministic login through the kit's own SDK-mode UI: land on a management-generated magic
- * link for a seeded test user (no inbox), which SdkLogin verifies from `?t=`.
+ * Sign a seeded test user in through the hosted flow on /login, the only login UI: email first,
+ * then a management-generated code (no inbox), declining any passkey/password offers. Ends on
+ * `returnTo` with the session established.
  */
-export async function loginViaSdk(
+export async function loginViaFlow(
   page: Page,
   user: SeedUser = GUEST,
   returnTo = "/me",
 ) {
-  const tenant = loginTenantOf(user);
-  await page.addInitScript(() =>
-    window.localStorage.setItem("kit.authMode", "sdk"),
-  );
-  const q = new URLSearchParams({ returnTo });
-  if (tenant) q.set("tenant", tenant);
-  await page.goto(await magicLinkTo(`/login?${q}`, user.loginId, tenant));
-  await declinePasskeyOffer(page);
+  await page.goto(`/login?${new URLSearchParams({ returnTo })}`);
+  await continueWithEmail(page, user.loginId);
+  const how = await completeEmailVerification(page, page.context(), user);
+  if (how === "magic-link") {
+    // Verified in another tab; tokens are shared per origin, so just load the destination.
+    await page.goto(returnTo);
+  } else {
+    // The flow navigates to returnTo via onSuccess once every offer is answered.
+    await declineSignInOffers(
+      page,
+      async () => new URL(page.url()).pathname !== "/login",
+    );
+  }
+  await expect(page.getByRole("button", { name: "Log out" })).toBeVisible({
+    timeout: 30_000,
+  });
 }
 
 /**
@@ -102,6 +117,7 @@ export async function completeEmailVerification(
     await landing.goto(link);
     const loggedIn = landing.getByRole("button", { name: "Log out" });
     const notNow = landing.getByRole("button", { name: "Not now" });
+    // Give the hosted flow a few seconds to consume ?t= itself before falling back to the SDK.
     const handledByFlow = await loggedIn
       .or(notNow)
       .first()
@@ -137,7 +153,7 @@ export async function completeEmailVerification(
 }
 
 /**
- * TravelCorp's welcome screen (tp-sign-up-or-in) comes in two A/B variants: "Continue" (email first)
+ * The sign-up-or-in flow's welcome screen comes in two A/B variants: "Continue" (email first)
  * or "Continue with email" (Apple first). Fill the email if it isn't pre-filled and continue.
  */
 export async function continueWithEmail(
@@ -158,23 +174,25 @@ export async function continueWithEmail(
  * now") and, for a first-seen customer, an authenticator app ("Not now"). Decline whichever
  * appear until `done` shows.
  */
-export async function declinePdOffers(
+export async function declineSignInOffers(
   page: Page,
-  done: ReturnType<Page["locator"]>,
+  done: Locator | (() => Promise<boolean>),
 ) {
+  const isDone = typeof done === "function" ? done : () => done.isVisible();
   const skip = page
     .getByRole("button", { name: /^(not now|skip for now)$/i })
     .first();
+  // Bounded: at most a few offers in a row, so a stuck screen fails instead of looping forever.
   for (let i = 0; i < 4; i++) {
     await expect
-      .poll(async () => (await done.isVisible()) || (await skip.isVisible()), {
+      .poll(async () => (await isDone()) || (await skip.isVisible()), {
         timeout: 30_000,
       })
       .toBe(true);
-    if (await done.isVisible()) return;
+    if (await isDone()) return;
     await skip.click();
     // Offers can follow each other with the same button label; let the next screen render.
     await page.waitForTimeout(1_500);
   }
-  await expect(done).toBeVisible();
+  expect(await isDone(), "sign-in offers kept coming").toBe(true);
 }

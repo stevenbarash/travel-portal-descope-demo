@@ -22,10 +22,12 @@ import {
  * Plans every change from a read-only inventory, then applies it: creates what is missing,
  * never touches unowned resources, and keeps existing users (IDs, sessions, assignments). A
  * kit-owned user whose roles no longer match seed-data is patched in place, not recreated.
- * `pnpm seed:plan` prints the plan and stops.
+ * `npm run seed` after setting up .env (safe to re-run); `npm run seed:plan` prints the plan and
+ * stops. KIT_FORCE_FLOWS=1 re-imports kit flows this checkout already owns.
  */
 const { descope, env } = managementClient();
 const force = process.env.KIT_FORCE_FLOWS === "1";
+// Plan against a read-only ledger: --plan must never create .kit-state or touch the project.
 const plan = await seedPlan(
   descope,
   ownershipLedger(env.repoRoot, env.projectId, true),
@@ -41,6 +43,8 @@ if (plan.some((row) => row.action === "conflict"))
   throw new Error("Seed plan has conflicts; no project writes performed");
 if (process.argv.includes("--plan")) process.exit(0);
 
+// Writable ledger from here on. Order matters: permissions → roles (reference permissions) →
+// tenants → SSO → users (reference roles and tenants) → families → FGA (references user IDs) → flows.
 const owned = ownershipLedger(env.repoRoot, env.projectId);
 const m = descope.client.management;
 const rowFor = (kind: PlanRow["kind"], id: string) =>
@@ -84,6 +88,9 @@ for (const t of TENANTS) {
 }
 
 for (const t of SSO_TENANTS) {
+  // Re-applied on every run for tenants seed owns (configureSAMLByMetadata replaces the tenant's
+  // SAML config, so repeating it is idempotent); no ledger entry is needed. Tenants that existed
+  // before seed are planned as "preserve" and their SSO is never touched, broken or not.
   if (rowFor("sso", t.id)?.action === "preserve") continue;
   const res = await m.sso.configureSAMLByMetadata(
     t.id,
@@ -105,6 +112,7 @@ for (const t of SSO_TENANTS) {
   console.log(`configured SSO: ${t.id} → mocksaml (@${t.sso.domain})`);
 }
 
+/** Descope user fields for a persona, restricted to the given tenant memberships. */
 const personaOptions = (
   u: SeedUser,
   email: string,
@@ -169,8 +177,10 @@ for (const row of plan) {
     console.log(`created ${label}: ${loginId}`);
     continue;
   }
+  // Preserved/updated test users still need their ID for FGA relations below.
   if (row.kind === "users" && row.userId) userIds.set(u.loginId, row.userId);
   if (row.action === "update" && row.userId && row.tenants) {
+    // Patch, not update: only roles/memberships change, so ID, sessions and passkeys survive.
     const { roles, userTenants } = personaOptions(u, loginId, row.tenants);
     must(
       await m.user.patch(row.userId, {
@@ -238,6 +248,7 @@ for (const row of plan) {
   console.log(`added guardian: ${loginId} → ${family.id}`);
 }
 
+// Persona relations target real user IDs, known only now that users exist.
 await seedFga(descope, owned, [
   ...FGA_RELATIONS,
   ...TEST_USERS.flatMap((u): FgaRelation[] => {

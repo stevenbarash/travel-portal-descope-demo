@@ -33,6 +33,7 @@ export function AppAuthProvider({
   );
 }
 
+/** The AuthConfig passed to AppAuthProvider. Throws outside it, so a missing provider fails loudly. */
 export function useAuthConfig(): AuthConfig {
   const cfg = useContext(AuthConfigContext);
   if (!cfg)

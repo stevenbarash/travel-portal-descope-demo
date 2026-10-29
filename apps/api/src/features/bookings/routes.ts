@@ -22,8 +22,11 @@ import type { BookingsRepo } from "./repo";
  *  - `user:<sub>` otherwise.
  */
 
+/** Scope for a customer outside any family: keyed by the JWT `sub`. */
 export const scopeOfUser = (userId: string) => `user:${userId}`;
+/** Scope shared by everyone in a Descope family. */
 export const scopeOfFamily = (familyId: string) => `family:${familyId}`;
+/** The scope a caller's bookings live in. Pass values from the validated session only. */
 export const bookingScope = (userId: string, familyId: string | undefined) =>
   familyId ? scopeOfFamily(familyId) : scopeOfUser(userId);
 
@@ -34,6 +37,7 @@ export const bookingScope = (userId: string, familyId: string | undefined) =>
  */
 export function isReturningGuest(loginId: string | undefined): boolean {
   const local = loginId?.toLowerCase().split("@")[0] ?? "";
+  // Exact local part, or a +guest/-guest suffix so the presenter's own mailbox can play the role.
   return /^(guest|partner)$/.test(local) || /[+-](guest|partner)$/.test(local);
 }
 
@@ -47,6 +51,7 @@ function sampleParties(family: Family | null): PartyMember[][] | undefined {
   const adults = family.members
     .filter((m) => !m.dependent)
     .map((m) => ({ userId: m.userId, name: m.name ?? m.loginId }));
+  // One entry per SAMPLES booking, in order: two family breaks, then a grown-ups-only trip.
   return [all, all, adults];
 }
 
@@ -59,14 +64,19 @@ export async function customerBookings(
   familyId: string | undefined,
 ) {
   const scope = bookingScope(userId, familyId);
-  if (isReturningGuest(loginId) && !(await repo.hasSamples(scope)))
-    await repo.ensureSamples(
-      scope,
-      sampleParties(familyId ? await descope.loadFamily(familyId) : null),
-    );
+  if (isReturningGuest(loginId) && !(await repo.hasSamples(scope))) {
+    // Family names only decorate the sample history: without a management key, or if Descope's
+    // family search fails, fall back to anonymous parties rather than failing the whole list.
+    const family =
+      familyId && descope.hasManagementKey
+        ? await descope.loadFamily(familyId).catch(() => null)
+        : null;
+    await repo.ensureSamples(scope, sampleParties(family));
+  }
   return repo.list(scope);
 }
 
+/** Validate the body against a contract, or send a 400 and return undefined (caller just returns). */
 function parseBody<T extends z.ZodType>(
   schema: T,
   req: Request,
@@ -90,14 +100,19 @@ export function bookingsRouter(descope: DescopeServer, repo: BookingsRepo) {
   router.use(requireAuth(descope));
   // Login IDs by user, so the returning-guest check costs one management call per customer.
   const loginIds = new Map<string, string | undefined>();
+  // The session JWT has no login ID, hence the lookup. No management key, or a failed load, just
+  // means "not a returning guest": the bookings page must still work.
   async function loginIdOf(userId: string) {
-    if (!loginIds.has(userId)) {
-      const loginId = descope.hasManagementKey
-        ? (await descope.loadUser(userId).catch(() => undefined))?.loginId
-        : undefined;
+    if (loginIds.has(userId)) return loginIds.get(userId);
+    if (!descope.hasManagementKey) return undefined;
+    try {
+      const { loginId } = await descope.loadUser(userId);
       loginIds.set(userId, loginId);
+      return loginId;
+    } catch {
+      // Not cached: a transient Descope error must not hide this guest's history for good.
+      return undefined;
     }
-    return loginIds.get(userId);
   }
   const userOf = (req: Request) => authOf(req).token.sub ?? "unknown";
   const scopeOf = (req: Request) =>
@@ -154,6 +169,8 @@ export function bookingsRouter(descope: DescopeServer, repo: BookingsRepo) {
       );
   });
 
+  // Cancel (or restore) a booking. The repo matches on the caller's scope too, so another
+  // customer's booking ID is a 404, not a 403: no hint that it exists.
   router.patch("/:id", async (req, res) => {
     const patch = parseBody(UpdateBooking, req, res);
     if (!patch) return;

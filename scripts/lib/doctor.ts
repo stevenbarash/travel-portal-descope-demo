@@ -1,9 +1,11 @@
+/** One preflight result. Only `blocked` fails doctor/smoke; `unverified` needs a manual check. */
 export type Diagnostic = {
   id: string;
   status: "ready" | "blocked" | "unverified" | "info";
   message: string;
 };
 
+/** Normalize a Descope base URL to its origin; undefined when it is not a bare https origin. */
 function base(value: string | undefined) {
   try {
     const url = new URL(value || "https://api.descope.com");
@@ -35,12 +37,14 @@ export function diagnose(
         env.VITE_DESCOPE_PROJECT_ID &&
         env.DESCOPE_MANAGEMENT_KEY,
     );
+  // Scripts/API and the browser must hit the same project and region, or sessions fail validation.
   const matching = Boolean(
     configured &&
       env.DESCOPE_PROJECT_ID === env.VITE_DESCOPE_PROJECT_ID &&
       server &&
       server === browser,
   );
+  // Vite inlines every VITE_* variable into the client bundle, so a secret there would ship publicly.
   const exposed = Object.keys(env).some(
     (key) =>
       key.startsWith("VITE_") &&
@@ -86,7 +90,7 @@ export function diagnose(
       id: "demo-email",
       status: "info",
       message: env.DEMO_EMAIL?.trim()
-        ? "DEMO_EMAIL is set: seed creates plus-addressed live demo users (pnpm users lists them)."
+        ? "DEMO_EMAIL is set: seed creates plus-addressed live demo users (npm run users lists them)."
         : "DEMO_EMAIL is empty: seed creates only @example.com test users; set your work email for live demo logins.",
     },
     {
@@ -106,7 +110,7 @@ export function diagnose(
       id: "resources",
       status: "unverified",
       message:
-        "After MCP preflight, run pnpm seed:plan and review what seed would create, update or preserve.",
+        "After MCP preflight, run npm run seed:plan and review what seed would create, update or preserve.",
     },
     {
       id: "branding",

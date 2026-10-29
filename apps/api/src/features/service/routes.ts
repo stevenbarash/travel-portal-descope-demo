@@ -20,7 +20,10 @@ import { customerBookings } from "../bookings/routes";
  * Both are Descope built-ins, held by the "Customer Service" role.
  */
 
-/** Payload of a JWT Descope just issued to us over the management API. */
+/**
+ * Payload of a JWT Descope just issued to us over the management API. Decoded, not verified: it
+ * came straight from Descope over TLS and is only displayed, never accepted as a credential.
+ */
 function jwtClaims(jwt: string): Record<string, unknown> {
   const payload = jwt.split(".")[1];
   if (!payload) throw new Error("impersonation token is not a JWT");
@@ -35,9 +38,12 @@ function notConfigured(res: Response) {
   res.status(503).json(body);
 }
 
+/** /api/service: the agent console. Each route names the one permission it needs. */
 export function serviceRouter(descope: DescopeServer, repo: BookingsRepo) {
   const router = Router();
   router.use(requireAuth(descope));
+  // Project-level permissions from the JWT (agents aren't in tenants). Read-only lookups and
+  // impersonation are separate so a role can grant one without the other.
   const userAdmin = requirePermissions(descope, [KIT_PERMISSIONS.userAdmin]);
   const impersonate = requirePermissions(descope, [
     KIT_PERMISSIONS.impersonate,
@@ -84,11 +90,16 @@ export function serviceRouter(descope: DescopeServer, repo: BookingsRepo) {
     "/customers/:userId/impersonate",
     impersonate,
     async (req, res) => {
+      // The agent from their own session, never the body: Descope records them as `act.sub` and in
+      // the customer's audit trail.
       const agentId = authOf(req).token.sub ?? "";
       const customer = await descope.loadUser(routeParam(req, "userId") ?? "");
       const claims = jwtClaims(
         await descope.impersonate(agentId, customer.loginId),
       );
+      // Defense in depth: impersonation goes by login ID, so confirm Descope issued the token for
+      // the user we looked up before reading bookings as them.
+      // The token itself stays server-side; the browser only sees its claims.
       const subject = typeof claims.sub === "string" ? claims.sub : "";
       if (subject !== customer.userId) {
         const body: ApiError = {

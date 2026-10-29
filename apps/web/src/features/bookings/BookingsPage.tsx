@@ -17,6 +17,7 @@ import {
   useLocale,
 } from "../../i18n/locale";
 import { useT } from "../../i18n/messages";
+import { localIsoDate } from "./draft";
 
 /**
  * One customer profile, every booking (the thing a booking-only login can't do). In a
@@ -31,6 +32,7 @@ export function BookingsPage() {
   const [revision, setRevision] = useState(0);
   const [familyName, setFamilyName] = useState<string | undefined>();
 
+  // Only for the subtitle: the API already scopes /api/bookings to the household.
   useEffect(() => {
     apiGet("/api/family", MyFamily)
       .then((f) => setFamilyName(f.family?.name))
@@ -39,6 +41,7 @@ export function BookingsPage() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: bumping `revision` refetches after a cancel.
   useEffect(() => {
+    // Drop responses from a superseded fetch (or after unmount) so an old list can't win the race.
     let ignore = false;
     apiGet("/api/bookings", BookingList)
       .then((v) => !ignore && setData(v))
@@ -48,6 +51,8 @@ export function BookingsPage() {
     };
   }, [revision]);
 
+  // Cancelling is a status change, not a delete: the break stays in the household's history.
+  // Refetch rather than patch locally, so the list is whatever the API scopes to this caller.
   async function cancel(b: Booking) {
     try {
       await apiFetch(`/api/bookings/${b.id}`, {
@@ -94,7 +99,8 @@ export function BookingTable({
 }) {
   const t = useT();
   const locale = useLocale();
-  const today = new Date().toISOString().slice(0, 10);
+  // The viewer's local day: a booking arriving today is still upcoming until midnight here.
+  const today = localIsoDate(new Date());
   return (
     <ul className="space-y-3" data-testid="booking-list">
       {!bookings && <li className="text-sm text-muted">{t.common.loading}</li>}
@@ -104,6 +110,7 @@ export function BookingTable({
         </li>
       )}
       {bookings?.map((b) => {
+        // The API only stores upcoming/cancelled; "stayed" is derived here. ISO dates compare as strings.
         const past = b.arrival < today;
         const state =
           b.status === "cancelled" ? "cancelled" : past ? "stayed" : "upcoming";
@@ -160,9 +167,11 @@ function partyNames(party: { name: string }[], locale: Locale) {
   }).format(party.map((p) => p.name.split(/\s+/)[0] ?? p.name));
 }
 
+/** The destination's region, from the shared catalogue (bookings store only the ID). */
 const regionOf = (id: string) =>
   DESTINATIONS.find((p) => p.id === id)?.region ?? "";
 
+/** "403 forbidden: …": show the API's own status and reason rather than a generic failure. */
 function errorMessage(e: unknown) {
   return e instanceof ApiRequestError
     ? `${e.status} ${e.code}: ${e.message}`

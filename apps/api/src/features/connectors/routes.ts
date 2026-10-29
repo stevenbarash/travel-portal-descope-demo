@@ -40,12 +40,15 @@ export function connectorAuth(secret: string | undefined): RequestHandler {
   };
 }
 
+/** Connector endpoints behind the shared secret. `directory` is injectable so tests can vary records. */
 export function connectorsRouter(
   secret: string | undefined,
   directory: readonly DirectoryEntry[] = SAMPLE_DIRECTORY,
 ) {
   const router = Router();
   router.use(connectorAuth(secret));
+  // Always 200 with a decision (even "no": allowed=false) so the flow branches on the result
+  // instead of treating a refusal as a connector failure.
   router.post("/lookup", (req, res) => {
     const parsed = ConnectorLookupRequest.safeParse(req.body);
     if (!parsed.success) {

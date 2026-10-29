@@ -23,6 +23,7 @@ export function ReauthDialog({
   // No account switch while a sent link is being polled: collecting it later would sign this
   // tab back in as the first account. ReauthSignIn's Cancel stops the poll first.
   const [waiting, setWaiting] = useState(false);
+  // The account switch navigates away (unsaved input is lost), so bring the user back here after.
   const returnTo = encodeURIComponent(location.pathname + location.search);
   return (
     <div

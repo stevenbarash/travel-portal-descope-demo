@@ -21,11 +21,13 @@ export function RequireRole({
   const tenantId = useCurrentTenantId();
   // Session paused for re-auth: keep the page mounted; the API still refuses every call.
   const { paused } = useSessionHold();
+  // No tenant (B2C user): hasRole checks project-level roles instead.
   const allowed = paused || authz.hasRole(role, tenantId);
   if (!allowed) return <>{fallback}</>;
   return <>{children ?? <Outlet />}</>;
 }
 
+/** Default RequireRole fallback: names the missing role so a demo audience sees why. */
 export function Forbidden({ role }: { role: string }) {
   const t = useT();
   return (

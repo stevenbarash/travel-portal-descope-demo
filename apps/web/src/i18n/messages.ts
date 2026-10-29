@@ -54,8 +54,6 @@ const en = {
   },
   login: {
     title: "Sign in",
-    mode: "Mode:",
-    switchTo: (mode: string) => `switch to ${mode}`,
   },
   forbidden: {
     title: "Not allowed",
@@ -253,7 +251,6 @@ const en = {
     open: "Debug",
     close: "Close debug",
     title: "Session debug",
-    authMode: "Auth mode",
     sessionVia: "Session via",
     cookie: "cookie (DS)",
     header: "header (Bearer)",
@@ -326,8 +323,6 @@ const fr: Messages = {
   },
   login: {
     title: "Se connecter",
-    mode: "Mode :",
-    switchTo: (mode) => `passer en ${mode}`,
   },
   forbidden: {
     title: "Accès refusé",
@@ -523,7 +518,6 @@ const fr: Messages = {
     open: "Debug",
     close: "Fermer le debug",
     title: "Debug de session",
-    authMode: "Mode d'auth",
     sessionVia: "Session via",
     cookie: "cookie (DS)",
     header: "en-tête (Bearer)",

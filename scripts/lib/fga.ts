@@ -10,6 +10,7 @@ export const FGA_SCHEMA_FILE = resolve(
   "../../descope/fga/schema.dsl",
 );
 
+/** One FGA tuple: `target` (of `targetType`) has `relation` on `resource` (of `resourceType`). */
 export interface FgaRelation {
   resource: string;
   resourceType: string;
@@ -36,6 +37,7 @@ export function schemaWithoutComments(dsl: string): string {
 export const relationKey = (r: FgaRelation) =>
   `${r.resourceType}:${r.resource}#${r.relation}@${r.targetType}:${r.target}`;
 
+/** Inverse of relationKey(), used to delete ledger-recorded relations. */
 export function parseRelationKey(key: string): FgaRelation {
   const m = key.match(/^([^:]+):([^#]+)#([^@]+)@([^:]+):(.+)$/);
   if (!m) throw new Error(`Bad relation key in ledger: ${key}`);
@@ -65,6 +67,7 @@ export async function seedFga(
     );
     return false;
   }
+  // Skip saving an unchanged schema; otherwise dry-run first to surface relations it would delete.
   if (currentDsl !== dsl) {
     const dry = must(await m.fga.dryRunSchema({ dsl }), "fga.dryRunSchema");
     if (dry.data?.deletesPreview?.hasDeletes)
@@ -75,6 +78,7 @@ export async function seedFga(
     owned.record("fgaSchema", "schema");
     console.log("saved FGA schema (descope/fga/schema.dsl)");
   }
+  // Idempotent: only relations not already in the ledger are created.
   const fresh = relations.filter(
     (r) => !owned.has("relations", relationKey(r)),
   );
@@ -107,6 +111,7 @@ export async function deleteOwnedRelations(
     ),
     "fga.deleteRelations",
   );
+  // Already deleted in one batch above; the no-op callback just clears each ledger entry.
   for (const key of keys) await owned.remove("relations", key, async () => {});
   return keys.length;
 }

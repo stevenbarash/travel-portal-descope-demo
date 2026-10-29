@@ -7,7 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../../app";
 import { parseEnv } from "../../env";
 import { InMemoryBookingsRepo } from "./repo";
-import { isReturningGuest } from "./routes";
+import { customerBookings, isReturningGuest } from "./routes";
 
 /** A guardian's slice of the session's `families` claim. */
 const guardianOf = {
@@ -210,7 +210,7 @@ describe("my bookings", () => {
     expect(res.status).toBe(201);
     const created = await json(res);
     expect(created.scope).toBe("user:U-newbie");
-    expect(created.reference).toMatch(/^PD\d{7}$/);
+    expect(created.reference).toMatch(/^TC\d{7}$/);
     const guest = await json(await fetch(`${base}/api/bookings`, as("guest")));
     expect(guest.bookings).toHaveLength(3);
   });
@@ -374,5 +374,24 @@ describe("family", () => {
     expect(body.familyId).toBe("fam-1");
     // Mia was on both everyone-breaks and Sam's new one, not the grown-ups' break.
     expect(body.bookings).toHaveLength(3);
+  });
+});
+
+describe("customerBookings", () => {
+  it("still lists a returning guest's history when the family can't be loaded", async () => {
+    const failing = {
+      ...descope,
+      loadFamily: async () => {
+        throw new Error("family.searchAll failed: 503");
+      },
+    };
+    const list = await customerBookings(
+      new InMemoryBookingsRepo(),
+      failing,
+      "U-guest",
+      loginIds["U-guest"],
+      "fam-1",
+    );
+    expect(list.length).toBeGreaterThan(0);
   });
 });

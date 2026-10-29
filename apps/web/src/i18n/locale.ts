@@ -27,6 +27,7 @@ export function resolveLocale(
 }
 
 function readSaved(): string | null {
+  // localStorage access throws in some private modes and sandboxed iframes.
   try {
     return window.localStorage.getItem(STORAGE_KEY);
   } catch {
@@ -39,6 +40,8 @@ function applyLang(locale: Locale) {
   if (typeof document !== "undefined") document.documentElement.lang = locale;
 }
 
+// A module-level store rather than React context: it is resolved (and <html lang> set) before
+// the first render, and setLocale can be called from anywhere without a provider.
 let current: Locale = resolveLocale(
   readSaved(),
   globalThis.navigator?.language,
@@ -46,6 +49,7 @@ let current: Locale = resolveLocale(
 applyLang(current);
 const listeners = new Set<() => void>();
 
+/** Switches the site language everywhere and remembers it for the next visit. */
 export function setLocale(next: Locale) {
   current = next;
   applyLang(next);
@@ -70,7 +74,10 @@ export function useLocale(): Locale {
 
 /** A booking date (YYYY-MM-DD) as "Fri 18 Dec 2026" / "ven. 18 déc. 2026". */
 export function formatDate(iso: string, locale: Locale) {
-  return new Date(`${iso}T12:00:00Z`).toLocaleDateString(INTL_LOCALE[locale], {
+  // A booking date is a calendar day, not an instant: parse it as UTC and format it in UTC, so
+  // the viewer's timezone can never shift it to the previous or next day.
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString(INTL_LOCALE[locale], {
+    timeZone: "UTC",
     weekday: "short",
     day: "numeric",
     month: "short",

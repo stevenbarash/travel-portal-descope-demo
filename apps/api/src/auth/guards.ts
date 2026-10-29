@@ -46,6 +46,8 @@ export function requireTenantMember(param = "tenantId"): RequestHandler {
       res.status(400).json(body);
       return;
     }
+    // Membership comes from the signed `tenants` claim, never the request. Object.hasOwn so a
+    // param like "constructor" or "__proto__" can't match an inherited key.
     const tenants =
       (authOf(req).token as { tenants?: Record<string, unknown> }).tenants ??
       {};
@@ -65,6 +67,7 @@ export function requireTenantPermissions(
 ): RequestHandler {
   const member = requireTenantMember(param);
   return (req, res, next) => {
+    // Membership first, so a non-member gets "not a member" rather than a misleading permission error.
     member(req, res, (err?: unknown) => {
       if (err) return next(err);
       const tenantId = routeParam(req, param) as string;
@@ -115,6 +118,8 @@ export function requireFamilyPermissions(
   permissions: string[],
 ): RequestHandler {
   return (req, res, next) => {
+    // Family permissions live under `families.<id>`, separate from project and tenant permissions,
+    // so requirePermissions would never see them.
     const familyId = familyIdOf(descope, req);
     const held = familyId
       ? (descope.familiesOf(authOf(req))[familyId]?.permissions ?? [])

@@ -12,6 +12,7 @@ declare global {
 export function DevBridge() {
   const sdk = useDescope();
   useEffect(() => {
+    // Vite replaces this with a constant, so production bundles never put the SDK on window.
     if (!import.meta.env.DEV) return;
     window.__kit = { sdk };
     return () => {

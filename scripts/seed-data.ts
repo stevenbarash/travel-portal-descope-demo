@@ -1,18 +1,19 @@
 /**
- * What `pnpm seed` creates in the Descope project named by .env, and what `pnpm reset` removes.
+ * What `npm run seed` creates in the Descope project named by .env, and what `npm run reset` removes.
  * Names are plain (no prefix). Ownership is the `.kit-state/` ledger, not the name: seed never
  * modifies an existing resource, and refuses to reuse an existing role that lacks the permissions
  * listed here. Tenant names must be unique per project.
  * Test users never receive real emails/SMS; OTPs and magic links come from the management API.
  *
  * Each persona in TEST_USERS gets two accounts:
- *  - a Descope test user at its `loginId` (…@example.com), for Playwright and `pnpm otp`;
+ *  - a Descope test user at its `loginId` (…@example.com), for Playwright and `npm run otp`;
  *  - when DEMO_EMAIL is set in .env, a real user at `demoLoginId(loginId, DEMO_EMAIL)` (e.g.
  *    you+admin@example.net) that the presenter signs in as. Codes land in their inbox,
  *    and real users show up in Descope widgets, which hide test users.
  *
  * This is the single list. Slices that need more seed data add it here.
  */
+/** SAML SSO settings for a seeded tenant. */
 export interface SeedTenantSso {
   /**
    * Email domain routed to the IdP. mocksaml.com only accepts example.com and example.org, and
@@ -23,6 +24,7 @@ export interface SeedTenantSso {
   defaultRoles: readonly string[];
 }
 
+/** A tenant (organization) seed creates with a fixed ID. */
 export interface SeedTenant {
   id: string;
   name: string;
@@ -60,11 +62,13 @@ export function demoLoginId(testLoginId: string, demoEmail: string): string {
   return `${local}${sep}${persona}@${domain}`.toLowerCase();
 }
 
+/** A persona's membership in one tenant, with its tenant-scoped role names. */
 export interface SeedTenantMembership {
   tenantId: string;
   roles: readonly string[];
 }
 
+/** A demo persona: seeded as a test user, and as a live demo user when DEMO_EMAIL is set. */
 export interface SeedUser {
   loginId: string;
   displayName: string;
@@ -145,6 +149,7 @@ export const PARTNER_USER: SeedUser = {
   roles: [],
 };
 
+/** Every persona seed creates. The first is the default for `npm run otp`. */
 export const TEST_USERS: readonly SeedUser[] = [
   GUEST_USER,
   PARTNER_USER,
@@ -158,6 +163,7 @@ export const TEST_USERS: readonly SeedUser[] = [
  * the console) with "Family Impersonate Dependents", so seed only checks it and never edits it.
  */
 export const FAMILY_ROLE = "Family Admin";
+/** The permission that lets a guardian act on behalf of a dependent. */
 export const FAMILY_PERMISSION = "Family Impersonate Dependents";
 
 /** Family-scoped user attributes: a guardian is "Mum" in one family, maybe "Gran" in another. */
@@ -166,6 +172,7 @@ export const FAMILY_SCOPED_ATTRIBUTES = [
   { name: "relationship", displayName: "Relationship", type: 1 },
 ] as const;
 
+/** A family member without a login (child, pet), created as a dependent profile. */
 export interface SeedDependent {
   /** Login-ID suffix: the dependent's login ID is `<familyId>-<key>` (never an email). */
   key: string;
@@ -173,6 +180,7 @@ export interface SeedDependent {
   relationship: string;
 }
 
+/** A household seed creates under Family Accounts. */
 export interface SeedFamily {
   id: string;
   name: string;
@@ -206,6 +214,7 @@ export interface ResolvedFamily extends SeedFamily {
   accounts: "users" | "demoUsers";
 }
 
+/** Deterministic dependent login ID, so re-runs find the same dependent instead of duplicating it. */
 export const dependentLoginId = (familyId: string, key: string) =>
   `${familyId}-${key}`;
 

@@ -1,6 +1,6 @@
 import { createServer, request } from "node:http";
 
-/** The only API paths `pnpm tunnel` exposes publicly. */
+/** The only API paths `npm run tunnel` exposes publicly. */
 export const CONNECTOR_PREFIX = "/api/connectors/";
 
 /**
@@ -18,6 +18,7 @@ export function isConnectorPath(rawUrl: string | undefined): boolean {
     return false;
   }
   if (/(^|\/)\.\.?(\/|$)/.test(decoded) || decoded.includes("\\")) return false;
+  // Any difference after WHATWG normalization means the path would resolve somewhere unexpected.
   const normalized = new URL(rawUrl, "http://proxy.invalid").pathname;
   return normalized.startsWith(CONNECTOR_PREFIX) && normalized === path;
 }
@@ -54,6 +55,7 @@ export function createConnectorProxy(apiPort: number) {
         port: apiPort,
         method: req.method,
         path: req.url,
+        // Rewrite Host: the API sees a local request, not the trycloudflare.com hostname.
         headers: { ...req.headers, host: `localhost:${apiPort}` },
       },
       (up) => {
@@ -61,6 +63,7 @@ export function createConnectorProxy(apiPort: number) {
         up.pipe(res);
       },
     );
+    // API down or connection reset: answer 502 if nothing was sent yet, else just close.
     upstream.on("error", () => {
       if (!res.headersSent) res.writeHead(502);
       res.end();

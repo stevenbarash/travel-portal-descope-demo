@@ -8,7 +8,6 @@ import {
 import { useState } from "react";
 import { ApiRequestError, apiFetch } from "../api/client";
 import { useAuthConfig } from "../auth/AuthProvider";
-import { useAuthMode } from "../auth/useAuthMode";
 import { useAuthz } from "../auth/useAuthz";
 import { useT } from "../i18n/messages";
 
@@ -36,7 +35,6 @@ export function DebugDrawer() {
 
 function Panel() {
   const cfg = useAuthConfig();
-  const [mode] = useAuthMode();
   const { isAuthenticated } = useSession();
   const { user } = useUser();
   const sdk = useDescope();
@@ -47,6 +45,7 @@ function Panel() {
   const [method, setMethod] = useState<"GET" | "POST">("GET");
   const [out, setOut] = useState<string | null>(null);
 
+  // Computed at render, not a live countdown: it moves only when the drawer re-renders.
   const exp =
     typeof authz.claims.exp === "number" ? authz.claims.exp : undefined;
   const secondsLeft = exp
@@ -59,6 +58,8 @@ function Panel() {
     setTimeout(() => setCopied(null), 1500);
   }
 
+  // Goes through apiFetch so the request carries the same credentials the pages use;
+  // non-2xx responses arrive as ApiRequestError, so show status + error code from that.
   async function call() {
     setOut(null);
     try {
@@ -82,7 +83,6 @@ function Panel() {
     >
       <h3 className="mb-2 font-semibold">{t.debug.title}</h3>
       <dl className="grid grid-cols-[7rem_1fr] gap-y-1">
-        <Row k={t.debug.authMode} v={mode} />
         <Row
           k={t.debug.sessionVia}
           v={cfg.sessionViaCookie ? t.debug.cookie : t.debug.header}
@@ -133,9 +133,11 @@ function Panel() {
           >
             {t.debug.copyRefresh}
           </button>
+          {/* Mints a fresh session JWT, so server-side changes (roles, family) show in the claims. */}
           <button type="button" className={btn} onClick={() => sdk.refresh()}>
             {t.debug.refresh}
           </button>
+          {/* Unlike the header's logout, this stays on the page so RequireAuth shows the re-auth dialog. */}
           <button
             type="button"
             className={btn}
@@ -192,6 +194,7 @@ function Panel() {
   );
 }
 
+/** One term/value pair; empty or missing values render as a dash so the grid stays aligned. */
 function Row({ k, v }: { k: string; v: string | undefined }) {
   return (
     <>

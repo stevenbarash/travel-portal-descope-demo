@@ -1,6 +1,7 @@
 import { createConnection } from "node:net";
 import type { Diagnostic } from "./doctor";
 
+/** Try to connect: "open" means something listens; "unknown" (timeout, odd errors) is treated as unsafe. */
 async function probe(
   port: number,
   host: string,
@@ -28,9 +29,14 @@ async function probe(
     );
   });
 }
+/**
+ * Check the web (5173) and API (3001) ports are free on both loopbacks. Occupied ports block
+ * rather than reuse: a stale server may point at another project or older code.
+ */
 export async function portDiagnostics(): Promise<Diagnostic[]> {
   return Promise.all(
     [5173, 3001].map(async (port) => {
+      // localhost can resolve to either loopback, so a server bound to only one would be missed.
       const statuses = await Promise.all([
         probe(port, "127.0.0.1"),
         probe(port, "::1"),

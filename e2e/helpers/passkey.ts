@@ -22,6 +22,7 @@ export async function addVirtualAuthenticator(page: Page) {
     },
   );
   return {
+    /** Passkeys registered on this authenticator so far. */
     async credentialCount() {
       const { credentials } = await cdp.send("WebAuthn.getCredentials", {
         authenticatorId,

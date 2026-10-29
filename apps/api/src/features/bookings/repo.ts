@@ -15,8 +15,11 @@ export type NewBooking = Omit<CreateBooking, "partyIds"> & {
  * interface (see docs/recipes). Every method takes a scope so one customer's bookings can never leak.
  */
 export interface BookingsRepo {
+  /** Bookings in the scope, soonest arrival first. */
   list(scope: string): Promise<Booking[]>;
+  /** `createdBy` is the booker's user ID, so a family can see which guardian made each booking. */
   create(scope: string, input: NewBooking, createdBy: string): Promise<Booking>;
+  /** Undefined when the ID is unknown or belongs to another scope; callers answer 404 either way. */
   update(
     scope: string,
     id: string,
@@ -27,6 +30,7 @@ export interface BookingsRepo {
    * names who was on each sample break (a family's members), in SAMPLES order.
    */
   ensureSamples(scope: string, parties?: PartyMember[][]): Promise<void>;
+  /** Lets callers skip the family lookup that building `parties` costs once a scope is seeded. */
   hasSamples(scope: string): Promise<boolean>;
 }
 
@@ -62,6 +66,7 @@ const SAMPLES: NewBooking[] = [
   },
 ];
 
+/** Process-local store: fine for a demo, lost on restart, and not shared across API instances. */
 export class InMemoryBookingsRepo implements BookingsRepo {
   private bookings = new Map<string, Booking>();
   private seeded = new Set<string>();
@@ -76,9 +81,11 @@ export class InMemoryBookingsRepo implements BookingsRepo {
 
   private insert(scope: string, input: NewBooking, createdBy: string): Booking {
     const n = ++this.seq;
+    // Reference is derived from the sequence so it looks like a real booking number yet repeats
+    // identically after a demo reset.
     const booking: Booking = {
       id: `bk_${n}`,
-      reference: `PD${String(482_300 + n * 37).padStart(7, "0")}`,
+      reference: `TC${String(482_300 + n * 37).padStart(7, "0")}`,
       scope,
       ...input,
       status: "upcoming",
@@ -91,6 +98,7 @@ export class InMemoryBookingsRepo implements BookingsRepo {
 
   async ensureSamples(scope: string, parties?: PartyMember[][]) {
     if (this.seeded.has(scope)) return;
+    // Marked before inserting, so a cancelled sample is never re-created on the next read.
     this.seeded.add(scope);
     SAMPLES.forEach((s, i) => {
       const party = parties?.[i];
@@ -115,6 +123,7 @@ export class InMemoryBookingsRepo implements BookingsRepo {
   }
   async update(scope: string, id: string, patch: UpdateBooking) {
     const cur = this.bookings.get(id);
+    // IDs are guessable (bk_1, bk_2…), so the scope check is what keeps customers apart.
     if (!cur || cur.scope !== scope) return undefined;
     const next = { ...cur, ...patch };
     this.bookings.set(id, next);

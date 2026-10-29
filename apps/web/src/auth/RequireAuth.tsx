@@ -17,6 +17,7 @@ export function RequireAuth() {
   const location = useLocation();
   const t = useT();
   const tenantId = useCurrentTenantId();
+  // Distinguishes "session ended here" (re-auth in place) from "never signed in" (redirect).
   const hadSession = useRef(false);
   // Re-auth into the tenant the user was in; under tenant user isolation it must match.
   const lastTenant = useRef<string | undefined>(undefined);
@@ -32,6 +33,7 @@ export function RequireAuth() {
       lastLoginId.current = user.email || user.loginIds[0];
   }, [isAuthenticated, tenantId, user]);
 
+  // Paused UI is safe: with no session the API rejects every call, so nothing leaks or saves.
   const paused = hadSession.current && !isAuthenticated;
   if (!paused) {
     if (isSessionLoading)

@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 
+/** Resource categories the ledger tracks. Kinds added later load empty from older ledgers. */
 const kinds = [
   "users",
   /** Real (non-test) plus-addressed persona users for live demos (DEMO_EMAIL in .env). */
@@ -28,7 +29,8 @@ const kinds = [
 type Kind = (typeof kinds)[number];
 type Records = Record<Kind, string[]>;
 
-/** Local creation ledger, isolated by project. Missing state never grants ownership.
+/**
+ * Local creation ledger, isolated by project. Missing state never grants ownership.
  * Run seed/reset one at a time. Losing this file requires manual cleanup, not adoption.
  */
 export function ownershipLedger(
@@ -36,6 +38,7 @@ export function ownershipLedger(
   projectId: string,
   readOnly = false,
 ) {
+  // One file per project (hashed ID, so the filename leaks nothing) under the gitignored .kit-state/.
   const dir = join(repoRoot, ".kit-state");
   const file = join(
     dir,
@@ -78,6 +81,7 @@ export function ownershipLedger(
   function save() {
     if (readOnly) throw new Error("Read-only ownership ledger");
     mkdirSync(dir, { recursive: true });
+    // Write-then-rename is atomic, so a crash mid-save never leaves a truncated ledger.
     const temp = `${file}.tmp`;
     writeFileSync(
       temp,
@@ -91,11 +95,13 @@ export function ownershipLedger(
   return {
     ids: (kind: Kind) => [...records[kind]],
     has: (kind: Kind, id: string) => records[kind].includes(id),
+    /** Record right after each remote create, so a later failure still leaves it reset-able. */
     record(kind: Kind, id: string) {
       if (readOnly) throw new Error("Read-only ownership ledger");
       if (!records[kind].includes(id)) records[kind].push(id);
       save();
     },
+    /** Run the remote delete, then forget the ID. Unowned IDs are a no-op; a throw keeps the record. */
     async remove(kind: Kind, id: string, remove: () => Promise<unknown>) {
       if (readOnly) throw new Error("Read-only ownership ledger");
       if (!records[kind].includes(id)) return;
@@ -106,4 +112,5 @@ export function ownershipLedger(
   };
 }
 
+/** Handle returned by ownershipLedger(). */
 export type OwnershipLedger = ReturnType<typeof ownershipLedger>;

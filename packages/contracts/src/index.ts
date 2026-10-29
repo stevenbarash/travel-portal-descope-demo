@@ -2,6 +2,7 @@ import { z } from "zod";
 
 /** Shared API contracts. Both apps import from here; never redefine shapes locally. */
 
+/** GET /api/health — unauthenticated liveness. */
 export const HealthResponse = z.object({
   ok: z.literal(true),
   service: z.string(),
@@ -9,6 +10,10 @@ export const HealthResponse = z.object({
 });
 export type HealthResponse = z.infer<typeof HealthResponse>;
 
+/**
+ * Machine-readable error codes. `step_up_required` is distinct from `forbidden` so the web app can
+ * run the step-up flow and retry; `not_configured` means a missing env var, not a user problem.
+ */
 export const ApiErrorCode = z.enum([
   "unauthenticated",
   "forbidden",
@@ -135,6 +140,7 @@ export const Booking = z.object({
 });
 export type Booking = z.infer<typeof Booking>;
 
+/** GET /api/bookings — the caller's bookings and the scope the API resolved them to. */
 export const BookingList = z.object({
   scope: z.string(),
   bookings: z.array(Booking),
@@ -153,10 +159,12 @@ export const CreateBooking = z.object({
 });
 export type CreateBooking = z.infer<typeof CreateBooking>;
 
+/** PATCH /api/bookings/:id — status only (cancel); dates and party are fixed once booked. */
 export const UpdateBooking = z.object({ status: BookingStatus });
 export type UpdateBooking = z.infer<typeof UpdateBooking>;
 
 // ---- family (Descope Family Accounts) ----
+/** One person in a family: a guardian (logs in) or a dependent (doesn't). */
 export const FamilyMember = z.object({
   userId: z.string(),
   loginId: z.string(),
@@ -171,6 +179,7 @@ export const FamilyMember = z.object({
 });
 export type FamilyMember = z.infer<typeof FamilyMember>;
 
+/** A Descope family; members are guardians first, then dependents. */
 export const Family = z.object({
   id: z.string(),
   name: z.string(),
@@ -209,6 +218,7 @@ export const DependentSession = z.object({
 export type DependentSession = z.infer<typeof DependentSession>;
 
 // ---- customer service console ----
+/** A project-level user as an agent sees them. */
 export const Customer = z.object({
   userId: z.string(),
   loginId: z.string(),
@@ -251,12 +261,14 @@ export const ImpersonationResult = z.object({
 });
 export type ImpersonationResult = z.infer<typeof ImpersonationResult>;
 
+/** One Descope audit event for a customer. */
 export const AuditEntry = z.object({
   occurred: z.iso.datetime(),
   action: z.string(),
   method: z.string().optional(),
   device: z.string().optional(),
   geo: z.string().optional(),
+  /** Who acted on the customer's behalf (e.g. an impersonating agent), when not the customer. */
   actorId: z.string().optional(),
 });
 export type AuditEntry = z.infer<typeof AuditEntry>;

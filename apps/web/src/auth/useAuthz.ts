@@ -12,6 +12,7 @@ export function useAuthz(): Authz {
   return useMemo(
     () =>
       authzFromClaims({
+        // Token payload spreads last so its complete claims win over the partial SDK copy.
         ...((claims as Record<string, unknown> | undefined) ?? {}),
         ...decodeJwtPayload(sessionToken),
       }),
@@ -29,6 +30,7 @@ export const SessionHoldContext = createContext<{
   tenantId?: string;
 }>({ paused: false });
 
+/** Read the hold set by RequireAuth; `{ paused: false }` outside it. */
 export function useSessionHold() {
   return useContext(SessionHoldContext);
 }
@@ -37,5 +39,6 @@ export function useSessionHold() {
 export function useCurrentTenantId(): string | undefined {
   const { currentTenant, tenants } = useAuthz();
   const held = useSessionHold();
+  // The held tenant is last: it only matters once the session (and so its claims) is gone.
   return currentTenant ?? Object.keys(tenants)[0] ?? held.tenantId;
 }

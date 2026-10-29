@@ -1,15 +1,15 @@
 import { expect, test } from "@playwright/test";
-import { AGENT, GUEST, loginViaSdk, PARTNER } from "./helpers/login";
+import { AGENT, GUEST, loginViaFlow, PARTNER } from "./helpers/login";
 
 /**
  * Descope Family Accounts: one household, many people. Guardians (Gemma, Sam) sign in as
- * themselves; dependents (Mia, Leo, Biscuit) have no login. Seeded by `pnpm seed`.
+ * themselves; dependents (Mia, Leo, Biscuit) have no login. Seeded by `npm run seed`.
  */
 
 test("guardian: sees the household, adds and removes a dependent, acts for a child", async ({
   page,
 }) => {
-  await loginViaSdk(page, GUEST, "/family");
+  await loginViaFlow(page, GUEST, "/family");
   await expect(
     page.getByRole("heading", { name: "The Guest family" }),
   ).toBeVisible();
@@ -47,11 +47,11 @@ test("guardian: sees the household, adds and removes a dependent, acts for a chi
 test("co-guardian: signs in as themselves and sees the same household and bookings", async ({
   page,
 }) => {
-  await loginViaSdk(page, PARTNER, "/bookings");
+  await loginViaFlow(page, PARTNER, "/bookings");
   await expect(page.getByText("Shared with The Guest family")).toBeVisible({
     timeout: 20_000,
   });
-  await expect(page.getByTestId("booking-list")).toContainText("Cayton Bay");
+  await expect(page.getByTestId("booking-list")).toContainText("Lisbon");
   await page.getByRole("link", { name: "My family" }).click();
   await expect(
     page.getByTestId("family-member").filter({ hasText: "Sam Guest" }),
@@ -61,7 +61,7 @@ test("co-guardian: signs in as themselves and sees the same household and bookin
 test("customer without a family: no household, and the API refuses family changes", async ({
   page,
 }) => {
-  await loginViaSdk(page, AGENT, "/family");
+  await loginViaFlow(page, AGENT, "/family");
   await expect(page.getByText("You're not in a family yet.")).toBeVisible({
     timeout: 20_000,
   });

@@ -7,6 +7,7 @@ import { LOCALES, setLocale, useLocale } from "../i18n/locale";
 import { useT } from "../i18n/messages";
 import { DebugDrawer } from "./DebugDrawer";
 
+/** Layout shell for every route. Nav hiding is presentation only; the API enforces access. */
 export function App() {
   const { isAuthenticated } = useSession();
   const { user } = useUser();

@@ -19,7 +19,9 @@ import { serviceRouter } from "./features/service/routes";
 import { healthRouter } from "./routes/health";
 import { whoamiRouter } from "./routes/whoami";
 
+/** Everything routes need from outside Express. Tests pass fakes; production gets createDeps(). */
 export interface AppDeps {
+  /** The Descope facade: session validation, claim readers and management calls. */
   descope: DescopeServer;
   bookings: BookingsRepo;
   /**
@@ -30,6 +32,7 @@ export interface AppDeps {
   resetDemoData?: () => void;
 }
 
+/** Real dependencies from env. Without DESCOPE_MANAGEMENT_KEY, management-backed routes answer 503. */
 export function createDeps(env: Env): AppDeps {
   // Demo data resets on restart by design. The returning guest's history is created on first read.
   const bookings = new InMemoryBookingsRepo();
@@ -53,6 +56,8 @@ export function createApp(env: Env, deps: AppDeps = createDeps(env)) {
   app.use(cookieParser());
 
   app.use("/api/health", healthRouter());
+  // Unauthenticated by design (e2e calls it before signing in), so it is off in production unless
+  // explicitly enabled: anyone who can reach it can wipe every customer's demo bookings.
   if (env.KIT_DEMO_RESET ?? process.env.NODE_ENV !== "production") {
     app.post("/api/demo/reset", (_req, res) => {
       deps.resetDemoData?.();
@@ -66,6 +71,7 @@ export function createApp(env: Env, deps: AppDeps = createDeps(env)) {
   app.use("/api/family", familyRouter(deps.descope, deps.bookings));
   app.use("/api/service", serviceRouter(deps.descope, deps.bookings));
 
+  // JSON 404 instead of Express's HTML page, so every non-2xx body matches the ApiError contract.
   app.use((req, res) => {
     const body: ApiError = {
       error: "not_found",
@@ -91,6 +97,7 @@ export function createApp(env: Env, deps: AppDeps = createDeps(env)) {
       res.status(err.status).json(body);
       return;
     }
+    // Log server-side only; the client gets a bare code so SDK or stack details never leak.
     console.error(err);
     const body: ApiError = { error: "internal_error" };
     res.status(500).json(body);

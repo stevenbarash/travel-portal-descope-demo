@@ -17,13 +17,15 @@ import { Avatar } from "../family/FamilyPage";
 
 /**
  * Customer service console (req 21). Agents find a customer, see their bookings, their family
- * (Descope Family Accounts) and sign-in history, and can view the account exactly as the customer sees it (impersonation). The page is
- * role-gated for experience; the API checks User Admin / Impersonate on every call, and Descope
- * records each impersonation in the audit trail.
+ * (Descope Family Accounts) and sign-in history, and can view the account exactly as the customer
+ * sees it (impersonation). The page is role-gated for experience; the API checks User Admin /
+ * Impersonate on every call, and Descope records each impersonation in the audit trail.
  */
 export function ServicePage() {
   const authz = useAuthz();
   const t = useT();
+  // UX only: agents without Impersonate get a disabled button with the reason instead of a 403.
+  // The API's requirePermissions guard is what actually enforces it.
   const canImpersonate = authz.hasPermission(KIT_PERMISSIONS.impersonate);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Customer[] | null>(null);
@@ -108,6 +110,7 @@ export function ServicePage() {
   );
 }
 
+/** One customer's profile, family, bookings, "view as" and audit trail. Keyed by userId. */
 function CustomerPanel({
   userId,
   canImpersonate,
@@ -143,6 +146,9 @@ function CustomerPanel({
     setBusy(true);
     setError(null);
     try {
+      // The API asks Descope for an impersonation token, checks its `sub` is this customer, and
+      // reads their bookings as that identity. The agent's own session is untouched: nothing here
+      // signs the browser in as the customer. `actor` is the agent, from the token's `act` claim.
       const res = await apiFetch(`${base}/impersonate`, { method: "POST" });
       setAsCustomer(ImpersonationResult.parse(await res.json()));
       // The impersonation itself lands in the trail a moment later.
@@ -295,6 +301,7 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+/** "403 forbidden: Missing permission: …": the API's reason is the useful part for agents. */
 function errorMessage(e: unknown) {
   return e instanceof ApiRequestError
     ? `${e.status} ${e.code}: ${e.message}`

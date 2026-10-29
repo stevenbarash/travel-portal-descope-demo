@@ -18,7 +18,9 @@ import { findRealUsersByEmail, findTestUsersByEmail, must } from "./descope";
 import { readKitFlowFiles } from "./flows";
 import type { OwnershipLedger } from "./ownership";
 
+/** What seed will do with a resource. Any "conflict" aborts the whole seed before writing. */
 export type PlanAction = "create" | "preserve" | "update" | "conflict";
+/** Resource categories in the plan; mostly the ownership-ledger kinds plus sso and familyMembers. */
 export type PlanKind =
   | "permissions"
   | "roles"
@@ -32,6 +34,7 @@ export type PlanKind =
   | "dependents"
   | "familyMembers";
 
+/** One planned step, printed by seed:plan and consumed by seed.ts to decide what to write. */
 export type PlanRow = {
   kind: PlanKind;
   id: string;
@@ -51,12 +54,14 @@ export type PlanRow = {
   relationship?: string;
 };
 
+/** The subset of a Descope user record that drift detection reads. */
 type ExistingUser = {
   userId: string;
   roleNames?: string[];
   userTenants?: { tenantId: string; roleNames?: string[] }[];
 };
 
+// Order-independent fingerprint of tenant memberships, so role or tenant order never reads as drift.
 const membershipKey = (
   ts: readonly { tenantId: string; roles: readonly string[] }[],
 ) =>
@@ -117,6 +122,10 @@ export function hasDrift(u: SeedUser, existing: ExistingUser): boolean {
   return want !== [...(existing.roleNames ?? [])].sort().join();
 }
 
+/**
+ * Plan one persona user. Any matching user this checkout didn't create wins and is preserved, so
+ * seed never touches a user someone else made with the same email.
+ */
 function userRow(
   kind: "users" | "demoUsers",
   persona: SeedUser,
@@ -171,7 +180,7 @@ export async function seedPlan(
     must(await m.permission.loadAll(), "permission.loadAll").data ?? [];
   const roles = (
     must(await m.role.loadAll(), "role.loadAll").data ?? []
-  ).filter((r) => !r.tenantId);
+  ).filter((r) => !r.tenantId); // Kit roles are project-level; ignore same-named tenant roles.
   const tenants =
     must(await m.tenant.searchAll(), "tenant.searchAll").data ?? [];
   const flows = must(await m.flow.list(), "flow.list").data?.flows ?? [];
@@ -233,6 +242,7 @@ export async function seedPlan(
 
   for (const t of SSO_TENANTS) {
     const exists = tenants.some((e) => e.id === t.id);
+    // SSO is reconfigured only on tenants seed creates (or created earlier); configuring is idempotent.
     const mine = !exists || owned.has("tenants", t.id);
     rows.push({
       kind: "sso",
@@ -268,6 +278,7 @@ export async function seedPlan(
       );
     }
 
+  // After user rows: guardian planning depends on whether each persona is created or owned.
   rows.push(...(await familyRows(descope, owned, rows, demoEmail)));
 
   for (const ff of readKitFlowFiles()) {
@@ -392,6 +403,7 @@ async function familyRows(
     }
 
     for (const g of f.guardians) {
+      // f.accounts says whether this family is made of test users or live demo users.
       const userRow = userRows.find(
         (r) => r.kind === f.accounts && r.loginId === g.loginId,
       );

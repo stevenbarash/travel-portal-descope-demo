@@ -24,7 +24,10 @@ import { scopeOfFamily } from "../bookings/routes";
  * "Family Impersonate Dependents" family permission, and Descope checks it again on act-for.
  */
 
-/** Payload of a JWT Descope just issued to us over the management API. */
+/**
+ * Payload of a JWT Descope just issued to us over the management API. Decoded, not verified: it
+ * came straight from Descope over TLS and is only displayed, never accepted as a credential.
+ */
 function jwtClaims(jwt: string): Record<string, unknown> {
   const payload = jwt.split(".")[1];
   if (!payload) throw new Error("dependent token is not a JWT");
@@ -35,9 +38,12 @@ function fail(res: Response, status: number, body: ApiError) {
   res.status(status).json(body);
 }
 
+/** /api/family: read your family; guardians also add, remove and act for dependents. */
 export function familyRouter(descope: DescopeServer, repo: BookingsRepo) {
   const router = Router();
   router.use(requireAuth(descope));
+  // After requireAuth, so a missing key never hides a 401. Every route here loads the family
+  // through the management API.
   router.use((_req, res, next) =>
     descope.hasManagementKey
       ? next()
@@ -52,11 +58,14 @@ export function familyRouter(descope: DescopeServer, repo: BookingsRepo) {
 
   /** The caller's family and the dependent named by :userId, or a 404 already sent. */
   async function dependentOf(req: Request, res: Response) {
+    // Only called behind `guardian`, which has already proved the caller has a family.
     const familyId = familyIdOf(descope, req) as string;
     const family = await descope.loadFamily(familyId);
     const member = family?.members.find(
       (m) => m.userId === routeParam(req, "userId"),
     );
+    // Restricting to dependents means one guardian can never delete or act as another guardian;
+    // a user outside the family looks the same as a nonexistent one.
     if (!family || !member?.dependent) {
       fail(res, 404, {
         error: "not_found",
@@ -67,6 +76,8 @@ export function familyRouter(descope: DescopeServer, repo: BookingsRepo) {
     return { family, dependent: member };
   }
 
+  // Any signed-in customer: their own family (or null) and whether the UI should offer guardian
+  // actions. `canManage` is a UI hint only; the guardian guard enforces it on each write.
   router.get("/", async (req, res) => {
     const familyId = familyIdOf(descope, req);
     const claims = familyId
@@ -93,6 +104,7 @@ export function familyRouter(descope: DescopeServer, repo: BookingsRepo) {
       });
       return;
     }
+    // Always the caller's own family from the JWT, never one named in the body.
     const familyId = familyIdOf(descope, req) as string;
     res
       .status(201)
@@ -124,6 +136,8 @@ export function familyRouter(descope: DescopeServer, repo: BookingsRepo) {
         family.id,
       ),
     );
+    // Defense in depth: never show data under a token issued for someone other than the dependent.
+    // The token itself stays server-side; the browser only sees its claims.
     const subject = typeof claims.sub === "string" ? claims.sub : "";
     if (subject !== dependent.userId) {
       fail(res, 502, {

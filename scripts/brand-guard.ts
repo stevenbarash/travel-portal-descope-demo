@@ -5,6 +5,7 @@ import { join, relative, resolve } from "node:path";
  * Fails when a color is hardcoded outside the brand layer. Agents inline colors constantly; a
  * written rule is not enough, a failing check is. Allowed: semantic utilities that map to
  * brand tokens (bg-background, text-muted, border-border, bg-primary, text-danger, …).
+ * Runs as part of `npm run brand:guard`. Silence a deliberate line with `brand-guard-ignore`.
  */
 const REPO = resolve(import.meta.dirname, "..");
 /** Every app's and shared package's src/, so a second app or a shared UI package is covered too. */
@@ -23,6 +24,7 @@ const ROOTS = ["apps", "packages"].flatMap((group) =>
 const ALLOW_DIRS = ROOTS.map((root) => resolve(root, "brand"));
 const EXT = /\.(tsx?|css)$/;
 
+// Tailwind's built-in color names: any class using one bypasses the brand tokens.
 const PALETTE =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black|white";
 const RULES: { name: string; re: RegExp }[] = [
@@ -43,6 +45,7 @@ const RULES: { name: string; re: RegExp }[] = [
   },
 ];
 
+/** Recursively collect .ts/.tsx/.css files under `dir`. */
 function walk(dir: string, out: string[] = []) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);

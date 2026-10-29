@@ -52,6 +52,7 @@ export function ReauthSignIn({
   async function signInWithPasskey() {
     setBusy(true);
     setError(null);
+    // The browser prompt runs on this page, so the session lands in this tab with nothing to poll.
     const res = await sdk.webauthn.signIn(email.trim());
     if (!live.current) return;
     setBusy(false);
@@ -63,6 +64,8 @@ export function ReauthSignIn({
     e.preventDefault();
     setBusy(true);
     setError(null);
+    // tenantId keeps re-auth in the same tenant: under tenant user isolation the same email
+    // can be a different user elsewhere.
     const sent = await sdk.enchantedLink.signUpOrIn(
       email.trim(),
       new URL(ENCHANTED_LANDING, window.location.origin).toString(),
@@ -75,6 +78,7 @@ export function ReauthSignIn({
       return;
     }
     cancelled.current = false;
+    // linkId is the number shown here and in the email, so the user can tell which link to click.
     setLinkId(sent.data.linkId);
     // waitForSession resolves only on success or on its own timeout; a timed-out window can't
     // store a session later.
@@ -97,6 +101,7 @@ export function ReauthSignIn({
     if (!cancelled.current) setError(t.reauth.expired);
   }
 
+  // Cooperative cancel: an in-flight waitForSession cannot be aborted, so the loop exits after it.
   function cancel() {
     cancelled.current = true;
     setStopping(true); // until the current poll window ends
@@ -165,6 +170,8 @@ export function EnchantedLinkLanding({ token }: { token: string }) {
   const [state, setState] = useState<"verifying" | "done" | "failed">(
     "verifying",
   );
+  // Enchanted-link tokens are single-use; a second verify (StrictMode re-run) would fail and
+  // show an error even though the sign-in worked.
   const once = useRef(false);
   useEffect(() => {
     if (once.current) return;

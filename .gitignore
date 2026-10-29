@@ -7,4 +7,3 @@ dist/
 playwright-report/
 test-results/
 .DS_Store
-package-lock.json

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveLocale } from "./locale";
+import { formatDate, resolveLocale } from "./locale";
 import { messages } from "./messages";
 
 describe("resolveLocale", () => {
@@ -39,5 +39,23 @@ describe("messages", () => {
       return typeof leaf === "string" && leaf.trim() === "";
     });
     expect(empty).toEqual([]);
+  });
+});
+
+describe("formatDate", () => {
+  it("shows the booked day in every timezone", () => {
+    const original = process.env.TZ;
+    try {
+      for (const tz of [
+        "Pacific/Kiritimati",
+        "Pacific/Auckland",
+        "Pacific/Honolulu",
+      ]) {
+        process.env.TZ = tz;
+        expect(formatDate("2026-12-18", "en")).toMatch(/\b18\b/);
+      }
+    } finally {
+      process.env.TZ = original;
+    }
   });
 });

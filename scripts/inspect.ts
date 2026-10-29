@@ -1,9 +1,13 @@
 import { managementClient } from "./lib/descope";
 
-/** Print what exists in the project named by .env (no secrets). Useful before seeding or demoing. */
+/**
+ * `npm run inspect`: print what exists in the project named by .env (no secrets). Read-only;
+ * useful before seeding or demoing.
+ */
 const { descope } = managementClient();
 const m = descope.client.management;
 
+// Independent reads, so fetch them in parallel. Families are capped at 50: enough for a demo project.
 const [flows, tenants, roles, perms, familySettings, families] =
   await Promise.all([
     m.flow.list(),

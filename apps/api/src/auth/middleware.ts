@@ -8,6 +8,7 @@ export type SessionValidator = Pick<
   "validateSession" | "cookieNames"
 >;
 
+/** The JWT from `Authorization: Bearer <jwt>` (scheme is case-insensitive per RFC 6750). */
 function bearerToken(req: Request): string | undefined {
   const header = req.headers.authorization;
   if (!header) return undefined;
@@ -21,6 +22,7 @@ function bearerToken(req: Request): string | undefined {
  */
 export function requireAuth(descope: SessionValidator): RequestHandler {
   return async (req, res, next) => {
+    // The header wins: an explicit token is what the caller meant, a cookie may be stale.
     const token =
       bearerToken(req) ?? req.cookies?.[descope.cookieNames.session];
     if (!token) {
@@ -31,6 +33,8 @@ export function requireAuth(descope: SessionValidator): RequestHandler {
       res.status(401).json(body);
       return;
     }
+    // Signature and expiry only (keys are cached by the SDK). Authorization is the guards' job.
+    // The SDK's reason is dropped on purpose: the client only needs to know to re-authenticate.
     try {
       req.auth = await descope.validateSession(token);
     } catch {
@@ -56,6 +60,7 @@ export function authOf(req: Request): AuthenticationInfo {
 export function cors(allowedOrigins: readonly string[]): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
     const origin = req.headers.origin;
+    // Echo the exact origin from an allow-list: credentialed requests (cookie mode) can't use "*".
     if (origin && allowedOrigins.includes(origin)) {
       res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -69,6 +74,7 @@ export function cors(allowedOrigins: readonly string[]): RequestHandler {
       );
       res.setHeader("Vary", "Origin");
     }
+    // Preflights end here for any origin; without the allow headers above the browser blocks it.
     if (req.method === "OPTIONS") {
       res.status(204).end();
       return;

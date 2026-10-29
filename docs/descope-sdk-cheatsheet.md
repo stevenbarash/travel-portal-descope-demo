@@ -228,7 +228,7 @@ useDescope(): Sdk
   sdk.otp.signUpOrIn.email(loginId: string, loginOptions?: LoginOptions, token?: string): Promise<SdkResponse<{ maskedEmail: string }>>   // also .sms/.whatsapp/.voice (return maskedPhone)
   sdk.otp.verify.email(loginId: string, code: string): Promise<SdkResponse<JWTResponse>>
   sdk.magicLink.signUpOrIn.email(loginId: string, URI?: string, signUpOptions?: { tenantId?: string; customClaims?: Record<string, any>; templateId?: string; templateOptions?: Record<string, string> }): Promise<SdkResponse<{ maskedEmail: string }>>
-  //   URI = where the link lands (the kit: this /login URL without t/code); SdkLogin verifies ?t= there.
+  //   URI = where the link lands (the kit: this /login URL without t/code); e2e verifies ?t= there via the dev-only window.__kit SDK handle.
   sdk.magicLink.verify(token: string): Promise<SdkResponse<JWTResponse>>   // token = ?t= on the landing URL
   sdk.webauthn.signIn(loginId: string, passkeyOptions?: PasskeyOptions): Promise<SdkResponse<JWTResponse>>   // passkey sign-in (browser prompt)
   sdk.webauthn.update(loginId: string, token?: string, passkeyOptions?: PasskeyOptions): Promise<SdkResponse<ResponseData> | SdkResponse<{ jwt?: JWTResponse }>>   // add a passkey to the signed-in user; the kit passes getRefreshToken()
@@ -261,8 +261,8 @@ sdk.getCurrentTenant(token: string): string
 
 The kit's own flows: `demo-sign-up-or-in` (web default; runs the `demo-promote-passkeys` subflow),
 `demo-step-up`, `demo-promote-passkeys` (subflow only, never a web flow ID), and the opt-ins
-`demo-sign-up-or-in-otp`, `demo-step-up-otp`, `demo-password-sms-mfa`, from `descope/flows/` and imported by `pnpm seed`. Use the project's own `sign-up-or-in`/`step-up` only when the demo
-should show the customer's flow. Any other ID must exist in the target project (`pnpm inspect`).
+`demo-sign-up-or-in-otp`, `demo-step-up-otp`, `demo-password-sms-mfa`, from `descope/flows/` and imported by `npm run seed`. Use the project's own `sign-up-or-in`/`step-up` only when the demo
+should show the customer's flow. Any other ID must exist in the target project (`npm run inspect`).
 This demo: TravelCorp's own `tp-sign-up-or-in` (subflows `tp-email-verify`, `tp-profile`, `tp-mfa`),
 already in the project; a copy lives in `descope/customer-flows/` and seed never imports it.
 
@@ -285,7 +285,7 @@ already in the project; a copy lives in `descope/customer-flows/` and seed never
   `logged-in` End so its Load User sees the new session.
 - HTTP connector: hidden action `connector`, inputs `connectorId` (project-specific), `command`
   (`get`/`post`/…), `args` (object; shape undocumented, "temp" in the catalog), `resultPath`,
-  `exchangeStepId`; error `ConnectorFailed`. Add it in the console, then `pnpm flows:export`.
+  `exchangeStepId`; error `ConnectorFailed`. Add it in the console, then `npm run flows:export`.
 
 ## Patterns
 

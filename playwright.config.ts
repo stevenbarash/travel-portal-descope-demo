@@ -1,6 +1,8 @@
 import { defineConfig } from "@playwright/test";
 import { localEnvironment } from "./scripts/lib/local-environment";
 
+// Same offline preflight as `npm run doctor`, so a direct `npx playwright test` fails fast with
+// a readable reason instead of webServer or login timeouts.
 const blocked = localEnvironment().diagnostics.filter(
   (row) => row.status === "blocked",
 );
@@ -12,7 +14,7 @@ if (blocked.length)
 /**
  * Smoke tests against dev servers Playwright starts itself. Logs in as seeded Descope test users
  * with management-generated OTPs (or DESCOPE_TEST_OTP), so no inbox is needed. Requires .env with
- * a management key and `pnpm seed` (or `npm run seed`) to have run once.
+ * a management key and `npm run seed` to have run once.
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -43,6 +45,7 @@ export default defineConfig({
       timeout: 60_000,
     },
   ],
+  // "reset" runs once before the browser project to restore the API's in-memory demo data.
   projects: [
     { name: "reset", testMatch: /reset\.setup\.ts/ },
     {

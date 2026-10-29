@@ -10,6 +10,7 @@ import { loadGoogleFont } from "./brand/font";
 import { envResult } from "./env";
 import "./index.css";
 
+// Brand chrome is applied before the first render so the tab never shows template defaults.
 document.title = brand.name;
 // index.html ships /favicon.svg; the brand may use another file or type.
 const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
@@ -22,6 +23,8 @@ if (brand.fontImport) loadGoogleFont(brand.font);
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("#root not found");
 
+// The Descope provider can't start without a project ID, so a bad .env renders a setup
+// checklist instead of a blank page or a console-only SDK error.
 createRoot(rootEl).render(
   <StrictMode>
     {envResult.ok ? (

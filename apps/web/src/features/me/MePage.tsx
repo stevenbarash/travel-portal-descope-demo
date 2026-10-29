@@ -48,6 +48,10 @@ export function MePage() {
   );
 }
 
+/**
+ * The same session seen twice: the user object the web SDK loaded, and /api/whoami's view after
+ * validating the token server-side. Matching values show the browser and API agree.
+ */
 function SessionDetails() {
   const { user, isUserLoading } = useUser();
   const t = useT();

@@ -1,10 +1,10 @@
 /**
  * THE brand file. Every color, the font, the logo and the product name live here and nowhere
- * else. `pnpm brand:apply` turns it into apps/web/src/brand/tokens.css; `pnpm brand:guard` fails
+ * else. `npm run brand:apply` turns it into apps/web/src/brand/tokens.css; `npm run brand:guard` fails
  * the check if a hex color or Tailwind palette class appears anywhere else in the web app.
  *
  * Ships deliberately neutral (greys) so any hardcoded leftover is obvious on the first screen.
- * Reskin for a customer: change values here, run `pnpm brand:apply`, done.
+ * Reskin for a customer: change values here, run `npm run brand:apply`, done.
  */
 export interface BrandPalette {
   background: string;

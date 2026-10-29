@@ -2,6 +2,7 @@ import { getSessionToken } from "@descope/react-sdk";
 import { ApiError as ApiErrorSchema } from "@kit/contracts";
 import type { z } from "zod";
 
+/** A non-2xx API response; `code` is the contract's `error` field, or "unknown" if the body wasn't one. */
 export class ApiRequestError extends Error {
   constructor(
     public status: number,
@@ -22,6 +23,7 @@ export async function apiFetch(
   init: RequestInit = {},
 ): Promise<Response> {
   const headers = new Headers(init.headers);
+  // A caller-supplied authorization header wins, e.g. to test the API with a specific token.
   const token = getSessionToken();
   if (token && !headers.has("authorization"))
     headers.set("authorization", `Bearer ${token}`);
@@ -30,6 +32,7 @@ export async function apiFetch(
 
   const res = await fetch(path, { ...init, headers, credentials: "include" });
   if (!res.ok) {
+    // The body may not be JSON at all (e.g. the Vite proxy's 502 when the API is down).
     const parsed = ApiErrorSchema.safeParse(await res.json().catch(() => null));
     throw new ApiRequestError(
       res.status,

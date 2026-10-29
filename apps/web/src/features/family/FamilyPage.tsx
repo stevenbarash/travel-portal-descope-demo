@@ -1,9 +1,4 @@
-import {
-  DependentSession,
-  type FamilyMember,
-  FamilyMember as FamilyMemberSchema,
-  MyFamily,
-} from "@kit/contracts";
+import { DependentSession, type FamilyMember, MyFamily } from "@kit/contracts";
 import { type FormEvent, useEffect, useState } from "react";
 import { ApiRequestError, apiFetch, apiGet } from "../../api/client";
 import { PageHeader } from "../../app/ui";
@@ -38,13 +33,21 @@ export function FamilyPage() {
     };
   }, [revision]);
 
-  async function run(key: string, action: () => Promise<void>) {
+  // One family action at a time: `busy` holds its key so every action button disables while it
+  // runs, and API errors (e.g. 403 without the guardian's family permission) land in the banner.
+  // Resolves to whether the action succeeded, since errors are swallowed into the banner here.
+  async function run(
+    key: string,
+    action: () => Promise<void>,
+  ): Promise<boolean> {
     setBusy(key);
     setError(null);
     try {
       await action();
+      return true;
     } catch (e) {
       setError(errorMessage(e));
+      return false;
     } finally {
       setBusy(null);
     }
@@ -55,12 +58,15 @@ export function FamilyPage() {
       await apiFetch(`/api/family/dependents/${m.userId}`, {
         method: "DELETE",
       });
+      // Close the act-for panel if it was showing the dependent who just left the family.
       if (acting?.dependent.userId === m.userId) setActing(null);
       setRevision((r) => r + 1);
     });
 
   const actFor = (m: FamilyMember) =>
     run(`act:${m.userId}`, async () => {
+      // Descope issues the dependent's token only if the guardian holds the family permission; the
+      // API returns it decoded, with the dependent's bookings read as them.
       const res = await apiFetch(`/api/family/dependents/${m.userId}/act`, {
         method: "POST",
       });
@@ -116,6 +122,7 @@ export function FamilyPage() {
                     {m.dependent ? t.family.dependent : t.family.guardian}
                   </span>
                 </div>
+                {/* canManage is the API's read of the guardian's family permission; the API guards these calls regardless. */}
                 {m.dependent && data.canManage && (
                   <div className="flex flex-col items-end gap-1 text-sm">
                     <button
@@ -151,14 +158,17 @@ export function FamilyPage() {
       {family &&
         (data.canManage ? (
           <AddDependentForm
-            busy={busy === "add"}
+            adding={busy === "add"}
+            disabled={busy !== null}
             onAdd={(name, relationship) =>
               run("add", async () => {
-                const res = await apiFetch("/api/family/dependents", {
+                // Success is the 2xx alone: the refetch validates the new member against the
+                // contract, so a parse failure here can't make a created dependent look failed
+                // (and a retry add a duplicate).
+                await apiFetch("/api/family/dependents", {
                   method: "POST",
                   body: JSON.stringify({ name, relationship }),
                 });
-                FamilyMemberSchema.parse(await res.json());
                 setRevision((r) => r + 1);
               })
             }
@@ -173,6 +183,7 @@ export function FamilyPage() {
             {t.family.behind}
           </summary>
           <p className="mt-2 text-muted">{t.family.behindBody}</p>
+          {/* The same `families` claim the API reads, decoded from the session in the browser. */}
           <pre
             className="mt-2 overflow-auto rounded border border-border bg-background p-2 text-xs"
             data-testid="family-claim"
@@ -185,12 +196,18 @@ export function FamilyPage() {
   );
 }
 
+/** Guardian-only: adds a dependent, a family profile with no login of its own. */
 function AddDependentForm({
-  busy,
+  adding,
+  disabled,
   onAdd,
 }: {
-  busy: boolean;
-  onAdd: (name: string, relationship: string) => Promise<void>;
+  /** This form's own request is in flight (drives the button label). */
+  adding: boolean;
+  /** Any family action is in flight; they share one `busy` slot, so only one may run at a time. */
+  disabled: boolean;
+  /** Resolves true once the dependent is added; false when the API rejected it. */
+  onAdd: (name: string, relationship: string) => Promise<boolean>;
 }) {
   const t = useT();
   const [name, setName] = useState("");
@@ -198,7 +215,8 @@ function AddDependentForm({
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!name.trim() || !relationship.trim()) return;
-    await onAdd(name.trim(), relationship.trim());
+    // Keep the inputs on failure so the guardian can retry without retyping.
+    if (!(await onAdd(name.trim(), relationship.trim()))) return;
     setName("");
     setRelationship("");
   }
@@ -239,15 +257,19 @@ function AddDependentForm({
           type="submit"
           className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
           data-testid="family-add-submit"
-          disabled={busy}
+          disabled={disabled}
         >
-          {busy ? t.family.adding : t.family.addButton}
+          {adding ? t.family.adding : t.family.addButton}
         </button>
       </div>
     </form>
   );
 }
 
+/**
+ * Acting for a dependent: their bookings, plus the token's `sub` (the dependent) and `act` (the
+ * guardian) to show both identities are carried, not swapped.
+ */
 function ActingPanel({
   session,
   onStop,
@@ -329,6 +351,7 @@ export function Avatar({
 const firstName = (m: FamilyMember) =>
   (m.name ?? m.loginId).split(/\s+/)[0] ?? m.loginId;
 
+/** "403 forbidden: …": the API's status and reason, as-is. */
 function errorMessage(e: unknown) {
   return e instanceof ApiRequestError
     ? `${e.status} ${e.code}: ${e.message}`

@@ -15,16 +15,16 @@ concurrency:
 jobs:
   check:
     # Typecheck, lint, brand guard, unit tests. No Descope project needed; the Playwright suite
-    # (pnpm check:full) runs locally against the project in .env.
+    # (npm run check:full) runs locally against the project in .env.
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      # Version comes from "packageManager" in package.json.
-      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm check
+          cache: npm
+      # package.json needs npm 12+ (allowScripts, min-release-age).
+      - run: npm install -g npm@12
+      - run: npm ci
+      - run: npm run check

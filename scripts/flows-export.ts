@@ -6,7 +6,7 @@ import {
 } from "./lib/flows";
 
 /**
- * `pnpm flows:export`: write the project's current demo-* flows back into descope/flows, and a
+ * `npm run flows:export`: write the project's current demo-* flows back into descope/flows, and a
  * copy of TravelCorp's own tp-* flows into descope/customer-flows (never imported by seed).
  */
 const { descope } = managementClient();

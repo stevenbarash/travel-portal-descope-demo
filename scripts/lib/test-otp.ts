@@ -1,4 +1,7 @@
-/** Server-only: Console Static OTP cannot be inferred from generated-code responses. */
+/**
+ * Resolve the OTP for a test user: the configured static code if set, else `generate()`.
+ * Server-only: Console Static OTP cannot be inferred from generated-code responses.
+ */
 export async function testOtp(
   staticOtp: string | undefined,
   generate: () => Promise<string>,

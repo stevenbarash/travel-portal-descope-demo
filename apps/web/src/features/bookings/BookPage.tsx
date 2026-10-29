@@ -42,6 +42,7 @@ export function BookPage() {
   const { isAuthenticated, isSessionLoading } = useSession();
   const t = useT();
 
+  // Every edit is written through to localStorage, so the draft survives the sign-in round trip.
   const update = (patch: Partial<BookingDraft>) =>
     setDraft((d) => {
       const next = { ...d, ...patch };
@@ -50,6 +51,7 @@ export function BookPage() {
     });
 
   // Signed in elsewhere (another tab, a redirect back from /login): pick up at the confirm step.
+  // No deps on purpose: the session can flip at any time, and the step guard keeps this idempotent.
   useEffect(() => {
     if (isAuthenticated && draft.step === "signin") update({ step: "review" });
   });
@@ -97,6 +99,7 @@ export function BookPage() {
   );
 }
 
+/** In flow order: the progress bar marks steps before the current one as done. */
 const STEPS = ["details", "signin", "review"] as const;
 
 function Steps({ step }: { step: BookingDraft["step"] }) {
@@ -130,6 +133,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 const input =
   "w-full rounded border border-border bg-background px-3 py-2 text-foreground";
 
+/** Step 1: the break, plus (for guests not yet signed in) the details handed to the flow. */
 function DetailsStep({
   draft,
   update,
@@ -145,11 +149,13 @@ function DetailsStep({
   const [error, setError] = useState<string | null>(null);
   function submit(e: FormEvent) {
     e.preventDefault();
+    // Validate against the same contract the API enforces, so step 3 can't fail on bad dates.
     const holiday = CreateBooking.safeParse(draft);
     if (!holiday.success) {
       setError(t.book.invalidHoliday);
       return;
     }
+    // Signed-in customers already have a login ID; only guests need an email to pre-fill the flow.
     if (!signedIn && !/^\S+@\S+\.\S+$/.test(draft.email.trim())) {
       setError(t.book.invalidEmail);
       return;
@@ -323,6 +329,7 @@ function SignInStep({
   );
 }
 
+/** Step 3: signed in. Pick who's coming from the Descope family, then create the booking. */
 function ReviewStep({
   draft,
   onBack,
@@ -361,14 +368,27 @@ function ReviewStep({
   }
 
   async function confirm() {
+    // With a family, the party replaces the guest count: the API sets guests to the party size and
+    // rejects (400) any ID not in the caller's Descope family, so names are never taken on trust.
     if (withFamily && party.size === 0) {
       setError(t.book.partyNeeded);
       return;
     }
-    const holiday = CreateBooking.parse({
+    // The draft comes from localStorage unvalidated (possibly from an older build), so a bad one
+    // must surface as an error rather than an unhandled rejection that leaves Confirm dead.
+    const parsed = CreateBooking.safeParse({
       ...draft,
       partyIds: withFamily ? [...party] : undefined,
     });
+    if (!parsed.success) {
+      setError(
+        parsed.error.issues
+          .map((i) => `${i.path.join(".") || "booking"}: ${i.message}`)
+          .join("; "),
+      );
+      return;
+    }
+    const holiday = parsed.data;
     setBusy(true);
     setError(null);
     try {
@@ -448,6 +468,7 @@ function ReviewStep({
           type="button"
           className="rounded bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-50"
           data-testid="book-confirm"
+          // Held until the family has loaded: booking earlier would skip the party picker.
           disabled={busy || members === null}
           onClick={confirm}
         >
@@ -465,6 +486,7 @@ function ReviewStep({
   );
 }
 
+/** Done. The draft is already cleared, so the next visit to /book starts a fresh one. */
 function Confirmed({ booking }: { booking: Booking }) {
   const t = useT();
   const locale = useLocale();
@@ -495,6 +517,7 @@ function Confirmed({ booking }: { booking: Booking }) {
   );
 }
 
+/** One-line recap of the draft, shown above the sign-in flow. */
 function summary(d: BookingDraft, t: Messages, locale: Locale) {
   return `${destinationName(d.destination)} · ${t.accommodation[d.accommodation]} · ${t.nights(d.nights)} ${t.book.from} ${formatDate(d.arrival, locale)} · ${t.guests(d.guests)}`;
 }

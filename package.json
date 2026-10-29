@@ -2,9 +2,9 @@
   "name": "travel-portal-descope-demo",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@12.10.1",
   "engines": {
-    "node": ">=20.19"
+    "node": ">=20.19",
+    "npm": ">=12"
   },
   "workspaces": [
     "apps/*",
@@ -47,5 +47,9 @@
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
     "@kit/brand": "*"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "fsevents": false
   }
 }

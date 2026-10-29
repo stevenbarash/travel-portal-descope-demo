@@ -8,6 +8,7 @@ import { config as loadDotenv } from "dotenv";
  * Descope project we talk to) and requires a management key.
  */
 export function loadScriptEnv() {
+  // scripts/lib/descope.ts → repo root, regardless of the cwd the script was launched from.
   const repoRoot = resolve(fileURLToPath(import.meta.url), "../../..");
   loadDotenv({ path: resolve(repoRoot, ".env"), quiet: true });
   const projectId = process.env.DESCOPE_PROJECT_ID;
@@ -31,6 +32,7 @@ export function loadScriptEnv() {
   };
 }
 
+/** Env plus a Descope server wrapper authenticated with the management key. */
 export function managementClient() {
   const env = loadScriptEnv();
   return { env, descope: createDescopeServer(env) };
@@ -61,6 +63,7 @@ export async function findRealUsersByEmail(
   descope: ReturnType<typeof createDescopeServer>,
   email: string,
 ) {
+  // Positional args up to `emails` (9th); testUsersOnly=false, withTestUser=false.
   const res = await descope.client.management.user.searchAll(
     undefined,
     undefined,
@@ -85,6 +88,7 @@ export async function findTestUsersByEmail(
   descope: ReturnType<typeof createDescopeServer>,
   email: string,
 ) {
+  // testUsersOnly=true, withTestUser=true: test users are excluded from searches by default.
   const res = await descope.client.management.user.searchAll(
     undefined,
     undefined,
@@ -112,6 +116,7 @@ export async function storedLoginId(
   tenantId?: string,
 ): Promise<string> {
   const users = await findTestUsersByEmail(descope, email);
+  // Without a tenant, pick the personal (tenantless) variant of the user.
   const matches = users.filter((u) =>
     tenantId
       ? u.userTenants?.some((t) => t.tenantId === tenantId)
@@ -124,7 +129,7 @@ export async function storedLoginId(
   const id = matches[0]?.loginIds[0];
   if (!id) {
     throw new Error(
-      `no test user found for ${email}${tenantId ? ` in ${tenantId}` : ""}; run pnpm seed`,
+      `no test user found for ${email}${tenantId ? ` in ${tenantId}` : ""}; run npm run seed`,
     );
   }
   return id;

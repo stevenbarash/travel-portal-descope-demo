@@ -2,9 +2,9 @@ import { expect, test } from "@playwright/test";
 import {
   completeEmailVerification,
   continueWithEmail,
-  declinePdOffers,
+  declineSignInOffers,
   GUEST,
-  loginViaSdk,
+  loginViaFlow,
 } from "./helpers/login";
 
 /**
@@ -49,7 +49,7 @@ test("signed out: booking details flow into TravelCorp's sign-in, then back to t
     "flow chose a magic link; the code path is what this test drives",
   );
   const review = page.getByTestId("book-review");
-  await declinePdOffers(page, review);
+  await declineSignInOffers(page, review);
 
   // Back on the same booking, at the confirm step (req 15).
   await expect(page.getByTestId("book-review-destination")).toHaveText(
@@ -60,7 +60,7 @@ test("signed out: booking details flow into TravelCorp's sign-in, then back to t
   await expect(party).toContainText("Mia Guest");
   await party.getByRole("checkbox", { name: /Biscuit/ }).uncheck();
   await page.getByTestId("book-confirm").click();
-  await expect(page.getByTestId("book-reference")).toHaveText(/^PD\d{7}$/);
+  await expect(page.getByTestId("book-reference")).toHaveText(/^TC\d{7}$/);
 
   // One profile, every booking: the returning guest's history plus the new one.
   await page.getByRole("link", { name: "See all my bookings" }).click();
@@ -96,16 +96,16 @@ test("a booking interrupted by sign-in resumes where the customer left off", asy
       }),
     ),
   );
-  await loginViaSdk(page, GUEST, "/book");
+  await loginViaFlow(page, GUEST, "/book");
   await expect(page.getByTestId("book-review")).toBeVisible();
   await expect(page.getByTestId("book-review-destination")).toHaveText("Banff");
 });
 
 test("returning guest: every booking on one account", async ({ page }) => {
-  await loginViaSdk(page, GUEST, "/bookings");
+  await loginViaFlow(page, GUEST, "/bookings");
   // Their history (3), plus anything the signed-out booking test just added.
   await expect(page.getByTestId("booking-row").nth(2)).toBeVisible();
-  await expect(page.getByTestId("booking-list")).toContainText("Cayton Bay");
+  await expect(page.getByTestId("booking-list")).toContainText("Lisbon");
   await expect(page.getByTestId("booking-list")).toContainText("Stayed");
   // Who was on each break, from the Descope family.
   await expect(page.getByTestId("booking-party").first()).toContainText(

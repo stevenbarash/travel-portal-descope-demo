@@ -16,6 +16,8 @@ export function HomePage() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Plain fetch, not apiFetch: health is public, and this line should report "API down"
+  // independently of session state. Parsing with the contract surfaces API/web drift too.
   useEffect(() => {
     fetch("/api/health")
       .then(async (r) => HealthSchema.parse(await r.json()))

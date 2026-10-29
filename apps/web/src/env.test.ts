@@ -12,7 +12,6 @@ describe("parseWebEnv", () => {
     const r = parseWebEnv({ VITE_DESCOPE_PROJECT_ID: "P2test" });
     expect(r.ok).toBe(true);
     if (r.ok) {
-      expect(r.env.VITE_AUTH_MODE).toBe("flow");
       expect(r.env.VITE_SESSION_VIA_COOKIE).toBe(false);
       expect(r.env.VITE_DESCOPE_FLOW_ID).toBe("tp-sign-up-or-in");
     }

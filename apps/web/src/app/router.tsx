@@ -24,6 +24,7 @@ export const router = createBrowserRouter([
         // Everything under here requires a session. Add protected pages as children.
         Component: RequireAuth,
         children: [
+          // Keeps old /dashboard links working; bookings is this demo's signed-in landing page.
           { path: "dashboard", element: <Navigate to="/bookings" replace /> },
           { path: "bookings", Component: BookingsPage },
           { path: "family", Component: FamilyPage },

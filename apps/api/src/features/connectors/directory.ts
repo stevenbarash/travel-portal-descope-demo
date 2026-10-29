@@ -34,13 +34,17 @@ export const SAMPLE_DIRECTORY: readonly DirectoryEntry[] = [
   },
 ];
 
+/** Decide whether this person may sign up or sign in, in the shape the flow branches on. */
 export function lookup(
   directory: readonly DirectoryEntry[],
   req: ConnectorLookupRequest,
 ): ConnectorLookupResponse {
+  // Emails are case-insensitive in practice; users type them however they like.
   const entry = directory.find(
     (e) => e.email.toLowerCase() === req.email.toLowerCase(),
   );
+  // A wrong external ID looks exactly like an unknown email, and "blocked" is only revealed after a
+  // full match, so the endpoint can't be used to probe which emails exist.
   if (!entry || (entry.externalId && entry.externalId !== req.externalId))
     return { allowed: false, reason: "no_match" };
   if (entry.blocked) return { allowed: false, reason: "blocked" };

@@ -1,8 +1,9 @@
 # TravelCorp's flow style
 
 `travel-portal.json` is the source for the `travel-portal` style in your project (console → Styles). The app
-selects it through `brand.descopeStyleId` in `packages/brand/brand.ts`, and `VITE_DESCOPE_STYLE_ID`
-overrides that. The project's default style is separate and unchanged.
+selects it through `brand.descopeStyleId` in `packages/brand/brand.ts`; `VITE_DESCOPE_STYLE_ID` and
+`VITE_DESCOPE_WIDGET_STYLE_ID` override it for a project that keeps its own styles (a missing style ID
+renders flows unstyled). The project's default style is separate and unchanged.
 
 How it's built (Code Mode format, see docs.descope.com/management/styles/code-mode/globals-reference):
 - `globals`: colour palettes (`primary` navy, `secondary` teal, `surface` greys with navy text),
@@ -19,7 +20,7 @@ How it's built (Code Mode format, see docs.descope.com/management/styles/code-mo
 section of the User Profile widget into its own shadowed card. Per-section padding and the Logout
 row come from the widget's own layout (console → Widgets), not from the style.
 
-Applying either: `pnpm style:import descope/styles/<file>.json` (`--plan` to dry-run; it refuses
+Applying either: `npm run style:import -- descope/styles/<file>.json` (`--plan` to dry-run; it refuses
 to overwrite an existing style without `--overwrite`). Under the hood: `POST /v2/mgmt/theme/import` with
 `{ theme: { componentsVersion, styles: { "travel-portal-light": { globals, components } } } }`. The
 import creates or overwrites only the styles it carries. `componentsVersion` must match the

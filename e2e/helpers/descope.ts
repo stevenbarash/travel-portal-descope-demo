@@ -6,6 +6,7 @@ import {
 import { testOtp } from "../../scripts/lib/test-otp";
 import { GUEST_USER } from "../../scripts/seed-data";
 
+/** Default persona for helpers called without a login ID. */
 export const TEST_USER = GUEST_USER;
 
 /**

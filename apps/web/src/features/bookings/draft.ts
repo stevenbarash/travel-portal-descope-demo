@@ -18,6 +18,7 @@ export interface BookingDraft {
   step: "details" | "signin" | "review";
 }
 
+/** localStorage key; one draft per browser, shared across tabs. */
 const KEY = "tp.bookingDraft";
 
 /** A Friday about two months out: a typical next break. */
@@ -25,9 +26,16 @@ function nextBreak(): string {
   const d = new Date();
   d.setDate(d.getDate() + 60);
   d.setDate(d.getDate() + ((5 - d.getDay() + 7) % 7));
-  return d.toISOString().slice(0, 10);
+  return localIsoDate(d);
 }
 
+/** YYYY-MM-DD for the viewer's local calendar day (toISOString would give the UTC day). */
+export function localIsoDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Sensible defaults so the form is bookable as-is. */
 export function newDraft(): BookingDraft {
   return {
     destination: "santorini",
@@ -42,6 +50,10 @@ export function newDraft(): BookingDraft {
   };
 }
 
+/**
+ * The saved draft, or null if there is none. Layered over the defaults so a draft saved before a
+ * field existed still loads complete.
+ */
 export function loadDraft(): BookingDraft | null {
   try {
     const raw = window.localStorage.getItem(KEY);
@@ -51,6 +63,7 @@ export function loadDraft(): BookingDraft | null {
   }
 }
 
+/** Best-effort: never throws, so a blocked storage can't break the booking form. */
 export function saveDraft(draft: BookingDraft) {
   try {
     window.localStorage.setItem(KEY, JSON.stringify(draft));
@@ -59,6 +72,7 @@ export function saveDraft(draft: BookingDraft) {
   }
 }
 
+/** Called once the booking is confirmed, so the next visit starts fresh. */
 export function clearDraft() {
   try {
     window.localStorage.removeItem(KEY);

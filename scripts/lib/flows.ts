@@ -4,9 +4,12 @@ import type { createDescopeServer } from "@kit/descope/server";
 import { must } from "./descope";
 import type { OwnershipLedger } from "./ownership";
 
+/** Kit flow exports (`demo-*.json`) that seed imports. */
 export const FLOWS_DIR = resolve(import.meta.dirname, "../../descope/flows");
+// The prefix is the safety boundary: seed/reset never touch flows outside it.
 const FLOW_PREFIX = "demo-";
 
+/** Shape of a flow export file, as written by exportKitFlows() and read by flow.import. */
 type FlowFile = {
   flow: {
     id: string;
@@ -24,6 +27,7 @@ type FlowFile = {
   }[];
 };
 
+/** Load every flow file in name order, refusing any whose ID lacks the kit prefix. */
 export function readKitFlowFiles(): FlowFile[] {
   // Name order is import order: demo-promote-passkeys (a subflow) lands before
   // demo-sign-up-or-in, which references it. readdirSync alone doesn't guarantee an order.
@@ -56,6 +60,7 @@ export async function seedFlows(
   );
   for (const ff of readKitFlowFiles()) {
     const id = ff.flow.id;
+    // Never overwrite a flow someone may have edited in the console unless forced AND owned.
     if (existing.has(id) && (!force || !owned.has("flows", id))) {
       console.log(`flow exists, not overwriting: ${id}`);
       continue;
@@ -93,6 +98,7 @@ export const CUSTOMER_FLOWS_DIR = resolve(
   import.meta.dirname,
   "../../descope/customer-flows",
 );
+/** ID prefix of the customer flows mirrored into CUSTOMER_FLOWS_DIR. */
 export const CUSTOMER_FLOW_PREFIX = "tp-";
 
 /**
@@ -112,6 +118,7 @@ export async function exportKitFlows(
     const ex = must(await m.flow.export(id), `flow.export(${id})`).data;
     if (!ex) continue;
     const { id: fid, name, description, dsl, disabled } = ex.flow;
+    // Keep only the fields import needs (drop server-added metadata) so re-exports diff cleanly.
     const screens = ex.screens.map((s) => {
       const {
         id: sidv,

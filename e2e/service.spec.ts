@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { AGENT, GUEST, loginViaSdk } from "./helpers/login";
+import { AGENT, GUEST, loginViaFlow } from "./helpers/login";
 
 /** Secure tools for customer service (req 21): find, view, impersonate, audit. */
 
 test("agent: finds a customer, sees their bookings, views the account as them", async ({
   page,
 }) => {
-  await loginViaSdk(page, AGENT, "/service");
+  await loginViaFlow(page, AGENT, "/service");
   await page.getByTestId("service-search").fill(GUEST.loginId);
   await page.getByRole("button", { name: "Find customer" }).click();
   await page.getByTestId("service-result").first().click();
@@ -40,7 +40,7 @@ test("agent: finds a customer, sees their bookings, views the account as them", 
 test("guest: no customer service link, the page is refused, and so is the API", async ({
   page,
 }) => {
-  await loginViaSdk(page, GUEST, "/bookings");
+  await loginViaFlow(page, GUEST, "/bookings");
   await expect(
     page.getByRole("link", { name: "Customer service" }),
   ).toHaveCount(0);

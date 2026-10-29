@@ -4,11 +4,16 @@ import { resetFlows } from "./lib/flows";
 import { ownershipLedger } from "./lib/ownership";
 import { SSO_TENANTS } from "./seed-data";
 
-/** Delete only resources recorded by this checkout's seed, in the current project. */
+/**
+ * `npm run reset`: delete only resources recorded by this checkout's seed, in the current project.
+ * Anything not in the ownership ledger (other checkouts, hand-made config) is left alone.
+ */
 const { descope, env } = managementClient();
 const owned = ownershipLedger(env.repoRoot, env.projectId);
 const m = descope.client.management;
 
+// Order is the reverse of seed: FGA first, then entities that reference users, then users,
+// tenants, roles and permissions (roles reference permissions), and flows last.
 await resetFga(descope, owned);
 // Dependents and families before users: a family outlives its guardians otherwise.
 for (const id of owned.ids("dependents")) {
@@ -33,6 +38,7 @@ for (const name of owned.ids("familyAttributes")) {
   console.log(`deleted owned family-scoped attribute: ${name}`);
 }
 for (const id of owned.ids("users")) {
+  // Guard against a corrupted ledger deleting a real user.
   const user = must(await m.user.load(id), `user.load(${id})`).data;
   if (user?.test !== true)
     throw new Error(`Refusing to delete non-test user ${id}`);
@@ -45,6 +51,7 @@ for (const id of owned.ids("demoUsers")) {
   const user = must(await m.user.load(id), `user.load(${id})`).data;
   if (user && user.test === true)
     throw new Error(`Refusing to delete test user ${id} as a demo user`);
+  // A demo user may already be gone (deleted in the console); still drop it from the ledger.
   await owned.remove("demoUsers", id, async () => {
     if (user) must(await m.user.delete(id), `user.delete(${id})`);
   });
@@ -54,6 +61,7 @@ for (const id of owned.ids("demoUsers")) {
 // only those whose sole tenant is that one and whose email is on its SSO domain.
 for (const t of SSO_TENANTS) {
   if (!owned.has("tenants", t.id)) continue;
+  // Positional args: tenantIds, roles, limit, page, testUsersOnly=false, withTestUser=false.
   const res = await m.user.searchAll(
     [t.id],
     undefined,

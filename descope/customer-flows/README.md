@@ -3,7 +3,7 @@
 TravelCorp's flows as JSON exports. Import them into your Descope project (console → Flows →
 Import flow, subflows first: `tp-email-verify`, `tp-profile`, `tp-mfa`, then `tp-sign-up-or-in`).
 They are **not managed by seed or reset**: seed only imports `demo-*` files from `descope/flows/`.
-`pnpm flows:export` refreshes these copies from the project.
+`npm run flows:export` refreshes these copies from the project.
 
 | Flow               | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Requirements                |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
@@ -28,7 +28,7 @@ as `overrides`). How it works (from the orchestration service source):
 - Overrides only render when the flow itself has translation on: `translate: true`,
   `translateConnectorID: "manual"`, `translateSourceLang: "en"`, `translateTargetLangs: ["fr"]`.
   That's the console's Localization → Configure Localization, or a flow import carrying those
-  fields. `pnpm flows:export` doesn't write these fields into the copies here.
+  fields. `npm run flows:export` doesn't write these fields into the copies here.
 - Key = `<last 4 chars of screen id>.<component id>.<display name, lower-kebab>.<prop>`, with a
   trailing `.children` dropped (for example `me-a.h1.text`, `code.resend.button`). Translated props: `children`, `label`,
   `placeholder`, `password-label`, the `data-errormessage-*` and `data-password-policy-message-*`

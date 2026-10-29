@@ -10,6 +10,14 @@ export interface DescopeServerConfig {
   baseUrl?: string;
 }
 
+/** Who performed an audited action on the user's behalf, or undefined when they acted themselves. */
+function actorOf(record: { userId: string }): string | undefined {
+  const actorId = (record as { actorId?: unknown }).actorId;
+  return typeof actorId === "string" && actorId && actorId !== record.userId
+    ? actorId
+    : undefined;
+}
+
 /**
  * The only place the API talks to the Descope Node SDK.
  * Framework-agnostic: takes tokens and AuthenticationInfo, never req/res.
@@ -45,12 +53,16 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
       return client.validateAndRefreshSession(sessionToken, refreshToken);
     },
 
+    // ---- authorization checks (read the validated JWT; no network) ----
+    /** Every listed project-level permission (top-level `permissions` claim; tenant grants don't count). */
     hasPermissions(auth: AuthenticationInfo, permissions: string[]): boolean {
       return client.validatePermissions(auth, permissions);
     },
+    /** Every listed project-level role. Prefer hasPermissions: role names vary per customer. */
     hasRoles(auth: AuthenticationInfo, roles: string[]): boolean {
       return client.validateRoles(auth, roles);
     },
+    /** Every listed permission within one tenant (`tenants.<id>.permissions`). False if not a member. */
     hasTenantPermissions(
       auth: AuthenticationInfo,
       tenantId: string,
@@ -58,6 +70,7 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
     ): boolean {
       return client.validateTenantPermissions(auth, tenantId, permissions);
     },
+    /** Every listed role within one tenant. Prefer hasTenantPermissions. */
     hasTenantRoles(
       auth: AuthenticationInfo,
       tenantId: string,
@@ -71,6 +84,7 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
     isSteppedUp(auth: AuthenticationInfo): boolean {
       return Boolean((auth.token as Record<string, unknown>).su);
     },
+    /** Every tenant the user belongs to (keys of the `tenants` claim). */
     tenantIdsOf(auth: AuthenticationInfo): string[] {
       return Object.keys(
         ((auth.token as Record<string, unknown>).tenants as
@@ -78,10 +92,12 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
           | undefined) ?? {},
       );
     },
+    /** The tenant the session is working in (`dct`), set when a flow or selectTenant picks one. */
     currentTenantOf(auth: AuthenticationInfo): string | undefined {
       const dct = (auth.token as Record<string, unknown>).dct;
       return typeof dct === "string" ? dct : undefined;
     },
+    /** Membership from the signed claim; uses `this`, so call it as a method, not detached. */
     isTenantMember(auth: AuthenticationInfo, tenantId: string): boolean {
       return this.tenantIdsOf(auth).includes(tenantId);
     },
@@ -101,6 +117,9 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
     },
 
     // ---- management (needs managementKey) ----
+    // Each call below hits the Descope management API and throws on a non-ok response, so a
+    // route's error handler answers 500 instead of returning partial data.
+    /** Routes that call management methods check this first and answer 503 rather than throw. */
     hasManagementKey: Boolean(cfg.managementKey),
     /** Tenant names for a set of IDs. */
     async loadTenants(ids: string[]) {
@@ -114,6 +133,7 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
     },
     /** Users belonging to a tenant, test users included (demos run on test users). */
     async searchTenantUsers(tenantId: string) {
+      // Positional args: tenantIds, roles, limit, page, testUsersOnly, withTestUser=true.
       const res = await client.management.user.searchAll(
         [tenantId],
         undefined,
@@ -130,6 +150,7 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
         userId: u.userId,
         email: u.email,
         name: u.name,
+        // Roles in this tenant only; the same user can hold different roles elsewhere.
         roles:
           u.userTenants?.find((t) => t.tenantId === tenantId)?.roleNames ?? [],
       }));
@@ -220,6 +241,7 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
     },
     /** A customer's audit trail, newest first (Descope keeps 30 days searchable). */
     async auditFor(userId: string) {
+      // 29 days, not 30: keeps `from` safely inside Descope's searchable window.
       const res = await client.management.audit.search({
         userIds: [userId],
         from: Date.now() - 29 * 24 * 3600 * 1000,
@@ -234,14 +256,17 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
           method: a.method || undefined,
           device: a.device || undefined,
           geo: a.geo || undefined,
-          actorId:
-            typeof a.data?.actorId === "string" ? a.data.actorId : undefined,
+          // Descope returns `actorId` at the top level of each record (the node SDK passes it
+          // through but leaves it off AuditRecord). It equals `userId` when users act for
+          // themselves, so only a different ID means someone acted on their behalf.
+          actorId: actorOf(a),
         }));
     },
 
     // ---- families (Descope Family Accounts) ----
     /** A family and everyone in it: guardians (who log in) and dependents (who don't). */
     async loadFamily(familyId: string): Promise<Family | null> {
+      // The family record has no members; they come from a user search on familyIds.
       const [fam, users] = await Promise.all([
         client.management.family.searchAll({ ids: [familyId] }),
         client.management.user.search({
@@ -287,6 +312,8 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-|-$/g, "")
           .slice(0, 24) || "member";
+      // Family prefix plus a time suffix keeps login IDs unique project-wide, even for two "Max"es.
+      // `relationship` is stored on the family membership, not on the user.
       const res = await client.management.family.createDependent(familyId, {
         loginId: `${familyId}-${slug}-${Date.now().toString(36)}`,
         name,
@@ -298,6 +325,7 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
         );
       return toFamilyMember(res.data, familyId);
     },
+    /** Delete a dependent profile. Callers must first confirm it is a dependent in the caller's family. */
     async deleteDependent(userId: string) {
       const res = await client.management.family.deleteDependent(userId);
       if (!res.ok)
@@ -331,13 +359,16 @@ export function createDescopeServer(cfg: DescopeServerConfig) {
   };
 }
 
+/** One family entry from the session's `families` claim. */
 export interface FamilyClaims {
   roles: string[];
   permissions: string[];
 }
 
+/** The facade type routes depend on; derived so it never drifts from the implementation. */
 export type DescopeServer = ReturnType<typeof createDescopeServer>;
 
+/** A management-API user, derived from the SDK since it doesn't export the type by this name. */
 type UserRecord = Awaited<
   ReturnType<
     ReturnType<typeof DescopeClient>["management"]["user"]["loadByUserId"]
@@ -363,9 +394,11 @@ function toCustomer(u: UserRecord) {
     name: u.name || undefined,
     status: u.status,
     methods,
+    // Descope reports createdTime in seconds.
     createdAt: u.createdTime
       ? new Date(u.createdTime * 1000).toISOString()
       : undefined,
+    // The project allows one family per user, so the first is the only one.
     familyId: u.userFamilies?.[0]?.familyId,
   };
 }

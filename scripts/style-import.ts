@@ -4,7 +4,7 @@ import { loadScriptEnv } from "./lib/descope";
 
 /**
  * Import one named Descope style (Code Mode JSON: { styleId, globals, components }) as its light
- * flavor: `pnpm style:import descope/styles/travel-portal-widget.json [--plan]`.
+ * flavor: `npm run style:import -- descope/styles/travel-portal-widget.json [--plan]`.
  *
  * `/v2/mgmt/theme/import` creates or overwrites only the styles it carries; the project's default
  * style and every other named style are untouched. The SDK's `management.theme.import` takes the
@@ -15,7 +15,9 @@ import { loadScriptEnv } from "./lib/descope";
 const env = loadScriptEnv();
 const file = process.argv[2];
 if (!file)
-  throw new Error("usage: pnpm style:import <style.json> [--plan|--overwrite]");
+  throw new Error(
+    "usage: npm run style:import -- <style.json> [--plan|--overwrite]",
+  );
 const style = JSON.parse(readFileSync(resolve(env.repoRoot, file), "utf8")) as {
   styleId?: string;
   globals?: unknown;
@@ -25,6 +27,7 @@ if (!style.styleId || !style.globals || !style.components)
   throw new Error(`${file}: needs styleId, globals and components`);
 
 const base = env.baseUrl ?? "https://api.descope.com";
+// Management API auth is `Bearer <projectId>:<managementKey>`, same as the SDK sends.
 const headers = {
   authorization: `Bearer ${env.projectId}:${env.managementKey}`,
   "content-type": "application/json",
@@ -46,6 +49,7 @@ const current = (await call("/v2/mgmt/theme/export", {})).theme;
 const componentsVersion = current?.componentsVersion;
 if (!componentsVersion)
   throw new Error("theme export returned no componentsVersion");
+// The theme stores each style per flavor; this script only writes the light one.
 const key = `${style.styleId}-light`;
 const exists = Object.hasOwn(current?.styles ?? {}, key);
 console.log(

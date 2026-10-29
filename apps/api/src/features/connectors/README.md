@@ -23,5 +23,5 @@ record); email matching is case-insensitive.
 | `mallory@example.com` | `blocked`                                                 |
 | anything else         | `no_match`                                                |
 
-Nothing from the body is logged or echoed. Setup (secret, `pnpm tunnel`, console connector, flow
+Nothing from the body is logged or echoed. Setup (secret, `npm run tunnel`, console connector, flow
 step.
